@@ -1,0 +1,155 @@
+.product-card {
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #eeeeee;
+
+  border-radius: 3px;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 14px 35px
+    rgba(0, 0, 0, 0.08);
+}
+
+
+/* IMAGEN */
+
+.product-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card:hover
+.product-image img {
+  transform: scale(1.04);
+}
+
+
+/* BADGE */
+
+.badge {
+  position: absolute;
+
+  top: 12px;
+  left: 12px;
+
+  padding: 6px 10px;
+
+  background: #181818;
+
+  color: #c8a96a;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.badge.nuevo {
+  background: #c8a96a;
+
+  color: #181818;
+}
+
+
+/* INFORMACIÓN */
+
+.product-info {
+  padding: 18px;
+}
+
+.categoria {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #a88748;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.product-info h3 {
+  min-height: 46px;
+
+  margin-bottom: 12px;
+
+  color: #202020;
+
+  font-size: 17px;
+
+  line-height: 1.35;
+}
+
+.precio {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #181818;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.cuotas {
+  display: block;
+
+  margin-bottom: 18px;
+
+  color: #727272;
+
+  font-size: 12px;
+}
+
+.consultar {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+
+  background: #c8a96a;
+
+  color: #181818;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  transition: 0.3s;
+}
+
+.consultar:hover {
+  background: #181818;
+
+  color: #c8a96a;
+}

@@ -1,0 +1,42 @@
+.banner-premium {
+  width: 100%;
+
+  padding: 60px 7%;
+
+  background: #ffffff;
+}
+
+.banner-premium img {
+  width: 100%;
+  max-width: 1200px;
+
+  height: auto;
+
+  margin: 0 auto;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+  .banner-premium {
+    padding: 40px 25px;
+  }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+  .banner-premium {
+    padding: 30px 15px;
+  }
+
+}

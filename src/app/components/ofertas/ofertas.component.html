@@ -1,0 +1,40 @@
+<section
+  class="ofertas"
+  id="ofertas"
+>
+
+  <div class="section-header">
+
+    <span>
+      OPORTUNIDADES
+    </span>
+
+    <h2>
+      Ofertas destacadas
+    </h2>
+
+    <p>
+      Aprovechá promociones especiales
+      en muebles seleccionados.
+    </p>
+
+  </div>
+
+
+  <div class="products-container">
+
+    @for (
+      producto
+      of ofertas;
+      track producto.id
+    ) {
+
+      <app-product-card
+        [producto]="producto"
+      />
+
+    }
+
+  </div>
+
+</section>

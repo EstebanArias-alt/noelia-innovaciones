@@ -1,0 +1,215 @@
+.categorias {
+  padding: 90px 7%;
+
+  background: #f4f1ea;
+}
+
+/* CABECERA */
+
+.section-header {
+  max-width: 700px;
+
+  margin: 0 auto 50px;
+
+  text-align: center;
+}
+
+.section-header span {
+  color: #a88748;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 3px;
+}
+
+.section-header h2 {
+  margin: 10px 0 12px;
+
+  color: #181818;
+
+  font-size:
+    clamp(32px, 4vw, 46px);
+}
+
+.section-header p {
+  color: #747474;
+
+  font-size: 15px;
+
+  line-height: 1.6;
+}
+
+
+/* GRID */
+
+.categorias-grid {
+  max-width: 1250px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 18px;
+}
+
+
+/* CARD */
+
+.categoria-card {
+  min-height: 320px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  display: block;
+
+  background: #181818;
+
+  border-radius: 6px;
+}
+
+
+.categoria-card img {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+
+  inset: 0;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.5s ease;
+}
+
+
+/* OSCURECER */
+
+.overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.82),
+      rgba(0, 0, 0, 0.30)
+    );
+
+  transition:
+    background 0.3s;
+}
+
+
+/* TEXTO */
+
+.categoria-info {
+  position: absolute;
+
+  left: 35px;
+  bottom: 35px;
+
+  z-index: 2;
+
+  color: #ffffff;
+}
+
+
+.categoria-info span {
+  color: #d2ad66;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 3px;
+}
+
+
+.categoria-info h3 {
+  margin: 7px 0 13px;
+
+  max-width: 420px;
+
+  font-size: 34px;
+
+  line-height: 1.05;
+}
+
+
+.categoria-info small {
+  display: inline-block;
+
+  padding-bottom: 4px;
+
+  border-bottom:
+    1px solid #c8a96a;
+
+  font-size: 13px;
+
+  font-weight: 500;
+}
+
+
+/* HOVER */
+
+.categoria-card:hover img {
+  transform: scale(1.06);
+}
+
+.categoria-card:hover .overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.72),
+      rgba(0, 0, 0, 0.15)
+    );
+}
+
+
+/* CATÁLOGO */
+
+.catalogo {
+  background: #181818;
+}
+
+
+/* TABLET */
+
+@media (max-width: 850px) {
+
+  .categorias {
+    padding:
+      70px 25px;
+  }
+
+  .categorias-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 500px) {
+
+  .categoria-card {
+    min-height: 260px;
+  }
+
+  .categoria-info {
+    left: 25px;
+    bottom: 25px;
+  }
+
+  .categoria-info h3 {
+    font-size: 28px;
+  }
+
+}

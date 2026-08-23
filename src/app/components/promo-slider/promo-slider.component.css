@@ -1,0 +1,312 @@
+.slider {
+  width: 100%;
+  height: 480px;
+
+  position: relative;
+  overflow: hidden;
+
+  background: #181818;
+}
+
+
+.slide {
+  position: absolute;
+
+  inset: 0;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.7s ease,
+    visibility 0.7s ease;
+}
+
+
+.slide.active {
+  opacity: 1;
+
+  visibility: visible;
+}
+
+
+.slide img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+}
+
+
+.overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.55) 36%,
+      rgba(0, 0, 0, 0.10) 75%
+    );
+}
+
+
+.slide-content {
+  position: absolute;
+
+  top: 50%;
+
+  left: 8%;
+
+  transform:
+    translateY(-50%);
+
+  max-width: 620px;
+
+  color: white;
+}
+
+
+.slide-content span {
+  color: #d1ad64;
+
+  font-size: 13px;
+
+  letter-spacing: 4px;
+
+  font-weight: 600;
+}
+
+
+.slide-content h1 {
+  margin: 15px 0;
+
+  max-width: 650px;
+
+  font-size:
+    clamp(42px, 5vw, 72px);
+
+  line-height: 1.05;
+}
+
+
+.slide-content p {
+  max-width: 500px;
+
+  margin-bottom: 30px;
+
+  font-size: 18px;
+
+  line-height: 1.6;
+
+  color: #eeeeee;
+}
+
+
+.slide-content a {
+  display: inline-block;
+
+  padding: 15px 27px;
+
+  background: #c8a96a;
+
+  color: #181818;
+
+  border-radius: 4px;
+
+  font-weight: 700;
+
+  transition: 0.3s;
+}
+
+
+.slide-content a:hover {
+  background: #e0c58a;
+
+  transform:
+    translateY(-2px);
+}
+
+
+/* FLECHAS */
+
+.arrow {
+  width: 48px;
+
+  height: 48px;
+
+  position: absolute;
+
+  top: 50%;
+
+  z-index: 20;
+
+  transform:
+    translateY(-50%);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(0, 0, 0, 0.45);
+
+  color: white;
+
+  font-size: 35px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+
+.arrow:hover {
+  background: #c8a96a;
+
+  color: #181818;
+}
+
+
+.previous {
+  left: 25px;
+}
+
+
+.next {
+  right: 25px;
+}
+
+
+/* INDICADORES */
+
+.indicators {
+  position: absolute;
+
+  z-index: 20;
+
+  left: 50%;
+
+  bottom: 22px;
+
+  transform:
+    translateX(-50%);
+
+  display: flex;
+
+  gap: 8px;
+}
+
+
+.indicators button {
+  width: 9px;
+
+  height: 9px;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.55);
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+
+.indicators button.active {
+  width: 25px;
+
+  border-radius: 10px;
+
+  background: #c8a96a;
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+  .slider {
+    height: 500px;
+  }
+
+  .slide-content {
+    left: 7%;
+
+    max-width: 520px;
+  }
+
+}
+
+
+/* CELULAR */
+
+@media (max-width: 600px) {
+
+  .slider {
+    height: 520px;
+  }
+
+  .slide-content {
+    left: 25px;
+
+    right: 25px;
+  }
+
+  .slide-content h1 {
+    font-size: 42px;
+  }
+
+  .slide-content p {
+    font-size: 15px;
+  }
+
+  .arrow {
+    width: 38px;
+
+    height: 38px;
+
+    font-size: 27px;
+  }
+
+  .previous {
+    left: 10px;
+  }
+
+  .next {
+    right: 10px;
+  }
+
+}
+
+
+@media (min-width: 1500px) {
+
+  .slider {
+    height: 540px;
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .slider {
+    height: 480px;
+  }
+
+}

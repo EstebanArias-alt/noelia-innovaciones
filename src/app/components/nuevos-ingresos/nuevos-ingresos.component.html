@@ -1,0 +1,37 @@
+<section class="nuevos" id="nuevos">
+
+  <div class="section-header">
+
+    <span>
+      RECIÉN LLEGADOS
+    </span>
+
+    <h2>
+      Nuevos ingresos
+    </h2>
+
+    <p>
+      Descubrí los últimos modelos
+      incorporados a nuestro catálogo.
+    </p>
+
+  </div>
+
+
+  <div class="products-container">
+
+    @for (
+      producto
+      of nuevos;
+      track producto.id
+    ) {
+
+      <app-product-card
+        [producto]="producto"
+      />
+
+    }
+
+  </div>
+
+</section>

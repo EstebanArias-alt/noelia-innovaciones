@@ -1,0 +1,47 @@
+.promo-bar {
+  width: 100%;
+
+  overflow: hidden;
+
+  background: #c8a96a;
+
+  color: #181818;
+}
+
+.promo-track {
+  min-height: 36px;
+
+  width: max-content;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 70px;
+
+  padding: 0 30px;
+
+  animation:
+    promoScroll 32s linear infinite;
+}
+
+.promo-track span {
+  font-size: 12px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+
+@keyframes promoScroll {
+
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+
+}

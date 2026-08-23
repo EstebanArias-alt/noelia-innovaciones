@@ -1,0 +1,124 @@
+.hero {
+  min-height: 85vh;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 8%;
+
+  background-image:
+    url('/images/hero/hero-sofa.jpg');
+
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.85),
+      rgba(0, 0, 0, 0.3)
+    );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+
+  max-width: 650px;
+
+  color: white;
+}
+
+.hero-small {
+  color: #c8a96a;
+
+  letter-spacing: 4px;
+
+  font-size: 14px;
+}
+
+.hero h1 {
+  font-size: clamp(45px, 6vw, 80px);
+
+  line-height: 1;
+
+  margin-top: 15px;
+}
+
+.hero h1 span {
+  color: #c8a96a;
+}
+
+.hero p {
+  font-size: 19px;
+
+  line-height: 1.6;
+
+  margin: 25px 0 35px;
+
+  max-width: 530px;
+
+  color: #dddddd;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 15px 28px;
+
+  border-radius: 4px;
+
+  transition: 0.3s;
+
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #c8a96a;
+  color: #181818;
+}
+
+.btn-primary:hover {
+  background: #e0c58a;
+}
+
+.btn-secondary {
+  border: 1px solid white;
+
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: white;
+  color: #181818;
+}
+
+@media (max-width: 768px) {
+
+  .hero {
+    min-height: 75vh;
+
+    padding: 0 25px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+}

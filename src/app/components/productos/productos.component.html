@@ -1,0 +1,49 @@
+<section
+  class="productos"
+  id="productos"
+>
+
+  <div class="section-header">
+
+    <span>
+      LO MÁS ELEGIDO
+    </span>
+
+    <h2>
+      Productos destacados
+    </h2>
+
+    <p>
+      Conocé algunos de nuestros
+      muebles más elegidos.
+    </p>
+
+  </div>
+
+
+  <div class="products-container">
+
+    @for (
+      producto
+      of productosDestacados;
+      track producto.id
+    ) {
+
+      <app-product-card
+        [producto]="producto"
+      />
+
+    }
+
+  </div>
+
+
+  <div class="ver-todos">
+
+    <a href="#">
+      Ver todos los productos →
+    </a>
+
+  </div>
+
+</section>

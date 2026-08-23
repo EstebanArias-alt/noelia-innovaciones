@@ -1,0 +1,75 @@
+<nav class="navbar">
+
+  <button
+    class="menu-button"
+    (click)="toggleMenu()"
+    aria-label="Abrir menú"
+  >
+    ☰
+  </button>
+
+  <div
+    class="nav-links"
+    [class.open]="menuOpen"
+  >
+
+    <a
+      href="#inicio"
+      (click)="closeMenu()"
+    >
+      Inicio
+    </a>
+
+    <a
+      href="#sofas"
+      (click)="closeMenu()"
+    >
+      Sofás
+    </a>
+
+    <a
+      href="#sillones"
+      (click)="closeMenu()"
+    >
+      Sillones
+    </a>
+
+    <a
+      href="#esquineros"
+      (click)="closeMenu()"
+    >
+      Esquineros
+    </a>
+
+    <a
+      href="#living"
+      (click)="closeMenu()"
+    >
+      Juegos de living
+    </a>
+
+    <a
+      href="#mesas"
+      (click)="closeMenu()"
+    >
+      Mesas
+    </a>
+
+    <a
+      href="#productos"
+      (click)="closeMenu()"
+    >
+      Todos los productos
+    </a>
+
+    <a
+      href="#ofertas"
+      class="oferta"
+      (click)="closeMenu()"
+    >
+      Ofertas
+    </a>
+
+  </div>
+
+</nav>

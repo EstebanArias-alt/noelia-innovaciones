@@ -1,0 +1,76 @@
+<article class="product-card">
+
+  <div class="product-image">
+
+    <img
+      [src]="producto.imagen"
+      [alt]="producto.nombre"
+    >
+
+    @if (producto.oferta) {
+      <span class="badge">
+        OFERTA
+      </span>
+    }
+
+    @if (producto.nuevo) {
+      <span class="badge nuevo">
+        NUEVO
+      </span>
+    }
+
+  </div>
+
+
+  <div class="product-info">
+
+    <span class="categoria">
+      {{ producto.categoria }}
+    </span>
+
+    <h3>
+      {{ producto.nombre }}
+    </h3>
+
+
+    @if (producto.precio) {
+
+      <strong class="precio">
+
+        $
+        {{
+          producto.precio
+          | number:'1.0-0'
+        }}
+
+      </strong>
+
+    } @else {
+
+      <strong class="precio">
+        Consultar precio
+      </strong>
+
+    }
+
+
+    @if (producto.cuotas) {
+
+      <span class="cuotas">
+        {{ producto.cuotas }}
+      </span>
+
+    }
+
+
+   <a
+  class="consultar"
+  [href]="whatsappUrl"
+  target="_blank"
+>
+  Consultar por WhatsApp
+</a>
+
+  </div>
+
+</article>
