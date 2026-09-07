@@ -1,25 +1,38 @@
 <article class="product-card">
 
-  <div class="product-image">
+  <a
+  [routerLink]="[
+    '/producto',
+    producto.slug
+  ]"
+  class="product-image"
+>
 
-    <img
-      [src]="producto.imagen"
-      [alt]="producto.nombre"
-    >
+ <img
+  [src]="imagenPrincipal"
+  [alt]="producto.nombre"
+  (error)="imagenError($event)"
+>
 
-    @if (producto.oferta) {
-      <span class="badge">
-        OFERTA
-      </span>
-    }
+  @if (producto.oferta) {
+    <span class="badge">
+      OFERTA
+    </span>
+  }
 
-    @if (producto.nuevo) {
-      <span class="badge nuevo">
-        NUEVO
-      </span>
-    }
+  @if (producto.nuevo) {
+    <span class="badge nuevo">
+      NUEVO
+    </span>
+  }
 
-  </div>
+  @if (!producto.stock) {
+  <span class="badge sin-stock">
+    SIN STOCK
+  </span>
+}
+
+</a>
 
 
   <div class="product-info">
@@ -29,29 +42,73 @@
     </span>
 
     <h3>
-      {{ producto.nombre }}
-    </h3>
+
+  <a
+    [routerLink]="[
+      '/producto',
+      producto.slug
+    ]"
+  >
+    {{ producto.nombre }}
+  </a>
+
+</h3>
 
 
-    @if (producto.precio) {
+@if (producto.precio) {
+
+  <div class="precios">
+
+    @if (
+      producto.oferta &&
+      (
+        producto.precioAnterior ||
+        producto.precio_anterior
+      )
+    ) {
+
+      <span class="precio-anterior">
+        $
+        {{
+          (
+            producto.precioAnterior ||
+            producto.precio_anterior
+          )
+          | number:'1.0-0'
+        }}
+      </span>
+
+    }
+
+    <div class="precio-actual">
 
       <strong class="precio">
-
         $
         {{
           producto.precio
           | number:'1.0-0'
         }}
-
       </strong>
 
-    } @else {
+      @if (porcentajeDescuento) {
 
-      <strong class="precio">
-        Consultar precio
-      </strong>
+        <span class="descuento">
+          -{{ porcentajeDescuento }}% OFF
+        </span>
 
-    }
+      }
+
+    </div>
+
+  </div>
+
+} @else {
+
+  <strong class="precio">
+    Consultar precio
+  </strong>
+
+}
 
 
     @if (producto.cuotas) {
@@ -63,12 +120,17 @@
     }
 
 
-   <a
+<a
   class="consultar"
+  [class.sin-stock-btn]="!producto.stock"
   [href]="whatsappUrl"
   target="_blank"
 >
-  Consultar por WhatsApp
+  @if (producto.stock) {
+    Consultar por WhatsApp
+  } @else {
+    Consultar disponibilidad
+  }
 </a>
 
   </div>

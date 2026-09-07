@@ -1,0 +1,363 @@
+@if (producto) {
+
+  <main class="producto-page">
+
+    <div class="breadcrumb">
+
+      <a routerLink="/">
+        Inicio
+      </a>
+
+      <span>›</span>
+
+      <a routerLink="/productos">
+        Productos
+      </a>
+
+      <span>›</span>
+
+      <strong>
+        {{ producto.nombre }}
+      </strong>
+
+    </div>
+
+
+    <section class="producto-detalle">
+
+
+      <!-- GALERÍA -->
+
+      <div class="galeria-producto">
+
+        <div class="imagen-principal">
+
+          <img
+            [src]="imagenSeleccionada"
+            [alt]="producto.nombre"
+          >
+
+          @if (producto.oferta) {
+
+            <span class="badge oferta">
+              OFERTA
+            </span>
+
+          }
+
+          @if (producto.nuevo) {
+
+            <span class="badge nuevo">
+              NUEVO
+            </span>
+
+          }
+
+        </div>
+
+
+        @if ((producto.imagenes?.length ?? 0) > 1) {
+
+          <div class="miniaturas">
+
+            @for (
+              imagen of producto.imagenes;
+              track imagen
+            ) {
+
+              <button
+                type="button"
+                [class.active]="
+                  imagenSeleccionada === imagen
+                "
+                (click)="seleccionarImagen(imagen)"
+              >
+
+                <img
+                  [src]="imagen"
+                  [alt]="producto.nombre"
+                >
+
+              </button>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+
+      <!-- INFORMACIÓN -->
+
+      <div class="producto-info">
+
+        <span class="categoria">
+          {{ producto.categoria }}
+        </span>
+
+        <h1>
+          {{ producto.nombre }}
+        </h1>
+
+
+        @if (producto.descripcion) {
+
+          <p class="descripcion">
+            {{ producto.descripcion }}
+          </p>
+
+        }
+
+
+<div class="precio-container">
+
+  @if (
+    producto.oferta &&
+    (
+      producto.precioAnterior ||
+      producto.precio_anterior
+    )
+  ) {
+
+    <span class="precio-anterior">
+
+      $
+      {{
+        (
+          producto.precioAnterior ||
+          producto.precio_anterior
+        )
+        | number:'1.0-0'
+      }}
+
+    </span>
+
+  }
+
+
+  @if (producto.precio) {
+
+    <div class="precio-actual">
+
+      <strong class="precio">
+
+        $
+        {{
+          producto.precio
+          | number:'1.0-0'
+        }}
+
+      </strong>
+
+
+      @if (porcentajeDescuento) {
+
+        <span class="descuento">
+          -{{ porcentajeDescuento }}% OFF
+        </span>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <strong class="precio">
+      Consultar precio
+    </strong>
+
+  }
+
+
+  @if (producto.cuotas) {
+
+    <span class="cuotas">
+      {{ producto.cuotas }}
+    </span>
+
+  }
+
+</div>
+
+
+        <div class="separator"></div>
+
+
+        <div class="detalles">
+
+
+          @if (producto.medidas) {
+
+            <div class="detalle">
+
+              <span>
+                Medidas
+              </span>
+
+              <strong>
+                {{ producto.medidas }}
+              </strong>
+
+            </div>
+
+          }
+
+
+          @if (producto.material) {
+
+            <div class="detalle">
+
+              <span>
+                Material
+              </span>
+
+              <strong>
+                {{ producto.material }}
+              </strong>
+
+            </div>
+
+          }
+
+        </div>
+
+
+        @if (
+          producto.colores &&
+          producto.colores.length > 0
+        ) {
+
+          <div class="colores">
+
+            <h3>
+              Colores disponibles
+            </h3>
+
+            <div class="colores-list">
+
+              @for (
+                color of producto.colores;
+                track color
+              ) {
+
+                <span>
+                  {{ color }}
+                </span>
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+
+        <div class="stock">
+
+          @if (producto.stock) {
+
+            <span class="disponible">
+              ● Producto disponible
+            </span>
+
+          } @else {
+
+            <span class="sin-stock">
+              ● Consultar disponibilidad
+            </span>
+
+          }
+
+        </div>
+
+
+     <a
+  class="whatsapp"
+  [class.whatsapp-sin-stock]="!producto.stock"
+  [href]="whatsappUrl"
+  target="_blank"
+>
+  @if (producto.stock) {
+    Consultar por WhatsApp
+  } @else {
+    Consultar disponibilidad
+  }
+</a>
+
+
+        <a
+          routerLink="/productos"
+          class="volver"
+        >
+          ← Volver al catálogo
+        </a>
+
+      </div>
+
+    </section>
+
+    @if (productosRelacionados.length > 0) {
+
+  <section class="relacionados">
+
+    <div class="relacionados-header">
+
+      <span class="subtitulo">
+        DESCUBRÍ MÁS
+      </span>
+
+      <h2>
+        También te puede interesar
+      </h2>
+
+      <p>
+        Otros productos de la misma categoría.
+      </p>
+
+    </div>
+
+
+    <div class="relacionados-grid">
+
+      @for (
+        relacionado of productosRelacionados;
+        track relacionado.id
+      ) {
+
+        <app-product-card
+          [producto]="relacionado"
+        />
+
+      }
+
+    </div>
+
+  </section>
+
+}
+
+  </main>
+
+} @else {
+
+  <div class="producto-no-encontrado">
+
+    <h1>
+      Producto no encontrado
+    </h1>
+
+    <p>
+      El producto que estás buscando
+      no está disponible.
+    </p>
+
+    <a routerLink="/productos">
+      Volver al catálogo
+    </a>
+
+  </div>
+
+}

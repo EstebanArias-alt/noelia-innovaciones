@@ -1,0 +1,482 @@
+<section class="admin-form">
+
+  <div class="encabezado">
+
+    <div>
+      <span class="marca">
+        NOELIA INNOVACIONES
+      </span>
+
+      <h1>
+        @if (modoEdicion) {
+          Editar producto
+        } @else {
+          Nuevo producto
+        }
+      </h1>
+
+      <p>
+        Completá la información que aparecerá
+        en la tienda.
+      </p>
+    </div>
+
+    <button
+      type="submit"
+      class="guardar"
+      form="productoForm"
+      [disabled]="guardando"
+    >
+      @if (guardando) {
+        Guardando...
+      } @else if (modoEdicion) {
+        Guardar cambios
+      } @else {
+        Publicar producto
+      }
+    </button>
+
+  </div>
+
+
+  <form
+    id="productoForm"
+    class="formulario"
+    (ngSubmit)="guardar()"
+  >
+
+    <div class="seccion">
+
+      <h2>Información principal</h2>
+
+      <div class="grid">
+
+        <div class="campo campo-grande">
+          <label>Nombre *</label>
+
+          <input
+            type="text"
+            name="nombre"
+            [(ngModel)]="nombre"
+            placeholder="Ej: Sofá Dubai"
+            required
+          >
+        </div>
+
+
+<div class="campo">
+
+  <label for="categoria">
+    Categoría *
+  </label>
+
+  <input
+    id="categoria"
+    type="text"
+    name="categoria"
+    [(ngModel)]="categoria"
+    list="categorias-lista"
+    placeholder="Ej: Sofás, Mesas, Placares..."
+    required
+  >
+
+  <datalist id="categorias-lista">
+
+    @for (
+      item of categorias;
+      track item
+    ) {
+
+      <option [value]="item"></option>
+
+    }
+
+  </datalist>
+
+  <small>
+    Podés elegir una categoría existente
+    o escribir una nueva.
+  </small>
+
+</div>
+
+
+        <div class="campo campo-completo">
+          <label>Descripción</label>
+
+          <textarea
+            name="descripcion"
+            [(ngModel)]="descripcion"
+            rows="5"
+            placeholder="Descripción del producto..."
+          ></textarea>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="seccion">
+
+      <h2>Precio y financiación</h2>
+
+      <div class="grid">
+
+        <div class="campo">
+          <label>Precio</label>
+
+          <input
+            type="number"
+            name="precio"
+            [(ngModel)]="precio"
+            placeholder="850000"
+          >
+        </div>
+
+
+        <div class="campo">
+          <label>Precio anterior</label>
+
+          <input
+            type="number"
+            name="precioAnterior"
+            [(ngModel)]="precioAnterior"
+            placeholder="920000"
+          >
+        </div>
+
+
+        <div class="campo campo-completo">
+          <label>Cuotas</label>
+
+          <input
+            type="text"
+            name="cuotas"
+            [(ngModel)]="cuotas"
+            placeholder="Ej: 12 cuotas sin interés"
+          >
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="seccion">
+
+      <h2>Características</h2>
+
+      <div class="grid">
+
+        <div class="campo">
+          <label>Medidas</label>
+
+          <input
+            type="text"
+            name="medidas"
+            [(ngModel)]="medidas"
+            placeholder="220 cm x 90 cm"
+          >
+        </div>
+
+
+        <div class="campo">
+          <label>Material</label>
+
+          <input
+            type="text"
+            name="material"
+            [(ngModel)]="material"
+            placeholder="Tela premium"
+          >
+        </div>
+
+
+        <div class="campo campo-completo">
+          <label>Colores disponibles</label>
+
+          <input
+            type="text"
+            name="colores"
+            [(ngModel)]="colores"
+            placeholder="Beige, Gris, Negro"
+          >
+
+          <small>
+            Separá los colores con comas.
+          </small>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- IMÁGENES -->
+    <!-- ========================= -->
+
+<!-- ========================= -->
+<!-- IMÁGENES DEL PRODUCTO -->
+<!-- ========================= -->
+
+<div class="seccion">
+
+  <h2>Fotos del producto</h2>
+
+
+  <!-- FOTOS QUE YA ESTÁN EN SUPABASE -->
+
+  @if (
+    modoEdicion &&
+    imagenesExistentes.length > 0
+  ) {
+
+    <div class="imagenes-actuales">
+
+      <h3>
+        Fotos actuales
+      </h3>
+
+
+      <div class="previews">
+
+        @for (
+          imagen of imagenesExistentes;
+          track imagen.id;
+          let i = $index
+        ) {
+
+          <div class="preview">
+
+            <img
+              [src]="imagen.url"
+              alt="Imagen del producto"
+            >
+
+
+            <!-- PRINCIPAL -->
+
+            @if (imagen.principal) {
+
+              <span class="principal">
+                PRINCIPAL
+              </span>
+
+            }
+
+
+            <!-- ACCIONES -->
+
+<div class="acciones-imagen">
+
+  @if (!imagen.principal) {
+
+    <button
+      type="button"
+      class="btn-principal"
+      title="Usar como imagen principal"
+      (click)="hacerPrincipal(imagen)"
+    >
+      ★ Principal
+    </button>
+
+  }
+
+  <button
+    type="button"
+    class="btn-eliminar-imagen"
+    title="Eliminar imagen"
+    (click)="eliminarImagen(imagen)"
+  >
+    Eliminar
+  </button>
+
+</div>
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- ========================= -->
+  <!-- SUBIR NUEVAS FOTOS -->
+  <!-- ========================= -->
+
+  <label class="upload-box">
+
+    <input
+      type="file"
+      accept="image/png,image/jpeg,image/webp"
+      multiple
+      hidden
+      (change)="seleccionarImagenes($event)"
+    >
+
+    <strong>
+      + Seleccionar imágenes
+    </strong>
+
+    <small>
+      JPG, PNG o WEBP
+    </small>
+
+  </label>
+
+
+  <!-- ========================= -->
+  <!-- PREVIEW NUEVAS FOTOS -->
+  <!-- ========================= -->
+
+  @if (previews.length > 0) {
+
+    <div class="nuevas-imagenes">
+
+      <h3>
+        Imágenes seleccionadas
+      </h3>
+
+
+      <div class="previews">
+
+        @for (
+          preview of previews;
+          track $index
+        ) {
+
+          <div class="preview">
+
+            <img
+              [src]="preview"
+              alt="Vista previa"
+            >
+
+
+            @if (
+              $index === 0 &&
+              imagenesExistentes.length === 0
+            ) {
+
+              <span class="principal">
+                PRINCIPAL
+              </span>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+  }
+
+</div>
+
+
+    <div class="seccion">
+
+      <h2>Publicación</h2>
+
+      <div class="opciones">
+
+        <label>
+          <input
+            type="checkbox"
+            name="stock"
+            [(ngModel)]="stock"
+          >
+          En stock
+        </label>
+
+
+        <label>
+          <input
+            type="checkbox"
+            name="oferta"
+            [(ngModel)]="oferta"
+          >
+          En oferta
+        </label>
+
+
+        <label>
+          <input
+            type="checkbox"
+            name="nuevo"
+            [(ngModel)]="nuevo"
+          >
+          Nuevo ingreso
+        </label>
+
+
+        <label>
+          <input
+            type="checkbox"
+            name="destacado"
+            [(ngModel)]="destacado"
+          >
+          Destacado
+        </label>
+
+      </div>
+
+    </div>
+
+
+    @if (error) {
+
+      <div class="error">
+        {{ error }}
+      </div>
+
+    }
+
+
+    <div class="acciones">
+
+      <button
+        type="button"
+        class="cancelar"
+        (click)="cancelar()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        type="submit"
+        class="guardar"
+        [disabled]="guardando"
+      >
+
+        @if (guardando) {
+
+          Guardando...
+
+        } @else if (modoEdicion) {
+
+          Guardar cambios
+
+        } @else {
+
+          Publicar producto
+
+        }
+
+      </button>
+
+    </div>
+
+  </form>
+
+</section>

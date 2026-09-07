@@ -1,50 +1,79 @@
 .product-card {
-  min-width: 0;
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
 
   overflow: hidden;
 
   background: #ffffff;
 
-  border: 1px solid #eeeeee;
-
-  border-radius: 3px;
+  border: 1px solid #ececec;
 
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
+
 
 .product-card:hover {
   transform: translateY(-4px);
 
+  border-color: #e2e2e2;
+
   box-shadow:
-    0 14px 35px
+    0 16px 38px
     rgba(0, 0, 0, 0.08);
 }
 
 
-/* IMAGEN */
+/* =========================
+   IMAGEN
+========================= */
 
 .product-image {
+  position: relative;
+
   width: 100%;
-  aspect-ratio: 1 / 1;
+
+  aspect-ratio: 4 / 3;
+
+  display: block;
+
   overflow: hidden;
-  background: #f5f5f5;
+
+  background: #f3f3f3;
 }
+
 
 .product-image img {
   width: 100%;
   height: 100%;
+
+  display: block;
+
   object-fit: cover;
+  object-position: center;
+
+  transition:
+    transform 0.4s ease,
+    opacity 0.3s ease;
 }
+
 
 .product-card:hover
 .product-image img {
-  transform: scale(1.04);
+  transform: scale(1.035);
 }
 
 
-/* BADGE */
+/* =========================
+   BADGES
+========================= */
 
 .badge {
   position: absolute;
@@ -52,104 +81,305 @@
   top: 12px;
   left: 12px;
 
+  z-index: 5;
+
   padding: 6px 10px;
 
-  background: #181818;
-
-  color: #c8a96a;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: 1px;
-}
-
-.badge.nuevo {
   background: #c8a96a;
 
   color: #181818;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  line-height: 1;
 }
 
 
-/* INFORMACIÓN */
+.badge.nuevo {
+  top: 44px;
+
+  background: #181818;
+
+  color: #ffffff;
+}
+
+
+.badge.sin-stock {
+  top: 12px;
+
+  background: #555555;
+
+  color: #ffffff;
+}
+
+
+/* Cuando no hay stock, priorizamos SIN STOCK */
+
+.product-card:has(.sin-stock)
+.badge:not(.sin-stock) {
+  display: none;
+}
+
+
+/* =========================
+   INFORMACIÓN
+========================= */
 
 .product-info {
-  padding: 18px;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px;
 }
+
 
 .categoria {
   display: block;
 
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 
   color: #a88748;
 
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 700;
 
-  font-weight: 600;
-
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 
   text-transform: uppercase;
 }
 
+
+/* =========================
+   NOMBRE
+========================= */
+
 .product-info h3 {
   min-height: 46px;
 
-  margin-bottom: 12px;
+  margin: 0 0 14px;
 
   color: #202020;
 
   font-size: 17px;
+  font-weight: 700;
 
   line-height: 1.35;
 }
 
+
+.product-info h3 a {
+  color: inherit;
+
+  text-decoration: none;
+}
+
+
+.product-info h3 a:hover {
+  color: #a88748;
+}
+
+
+/* =========================
+   PRECIOS
+========================= */
+
+.precios {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-bottom: 4px;
+}
+
+
+.precio-anterior {
+  color: #969696;
+
+  font-size: 13px;
+
+  text-decoration: line-through;
+}
+
+
+.precio-actual {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+
 .precio {
   display: block;
 
-  margin-bottom: 6px;
+  margin: 0;
 
   color: #181818;
 
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
+
+  line-height: 1.2;
 }
+
+
+.descuento {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 7px;
+
+  background: #a82424;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+
+  border-radius: 2px;
+}
+
+
+/* =========================
+   CUOTAS
+========================= */
 
 .cuotas {
   display: block;
 
+  min-height: 18px;
+
+  margin-top: 6px;
   margin-bottom: 18px;
 
-  color: #727272;
+  color: #777777;
 
   font-size: 12px;
+
+  line-height: 1.4;
 }
+
+
+/* =========================
+   BOTÓN WHATSAPP
+========================= */
 
 .consultar {
   width: 100%;
 
-  display: flex;
+  min-height: 44px;
 
+  margin-top: auto;
+
+  display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: 12px;
+  padding: 12px 14px;
 
   background: #c8a96a;
 
   color: #181818;
 
-  font-size: 13px;
+  text-decoration: none;
 
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 
-  transition: 0.3s;
+  text-align: center;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
+
 
 .consultar:hover {
   background: #181818;
 
   color: #c8a96a;
+}
+
+
+/* =========================
+   SIN STOCK
+========================= */
+
+.product-card:has(.sin-stock)
+.product-image img {
+  opacity: 0.55;
+
+  filter: grayscale(25%);
+}
+
+
+.sin-stock-btn {
+  background: #555555;
+
+  color: #ffffff;
+}
+
+
+.sin-stock-btn:hover {
+  background: #333333;
+
+  color: #ffffff;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  .product-image {
+    aspect-ratio: 1 / 1;
+  }
+
+
+  .product-info {
+    padding: 17px;
+  }
+
+
+  .precio {
+    font-size: 20px;
+  }
+
+}
+
+
+@media (max-width: 550px) {
+
+  .product-image {
+    aspect-ratio: 4 / 3;
+  }
+
+
+  .product-info h3 {
+    min-height: auto;
+
+    font-size: 16px;
+  }
+
+
+  .precio {
+    font-size: 21px;
+  }
+
+
+  .consultar {
+    min-height: 46px;
+  }
+
 }

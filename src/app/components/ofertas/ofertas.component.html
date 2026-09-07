@@ -21,20 +21,35 @@
   </div>
 
 
-  <div class="products-container">
+  @if (cargando) {
 
-    @for (
-      producto
-      of ofertas;
-      track producto.id
-    ) {
+    <div class="estado-productos">
+      Cargando ofertas...
+    </div>
 
-      <app-product-card
-        [producto]="producto"
-      />
+  } @else if (ofertas.length === 0) {
 
-    }
+    <div class="estado-productos">
+      No hay ofertas disponibles por el momento.
+    </div>
 
-  </div>
+  } @else {
+
+    <div class="products-container">
+
+      @for (
+        producto of ofertas;
+        track producto.id
+      ) {
+
+        <app-product-card
+          [producto]="producto"
+        />
+
+      }
+
+    </div>
+
+  }
 
 </section>

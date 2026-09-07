@@ -21,26 +21,41 @@
   </div>
 
 
-  <div class="products-container">
+  @if (cargando) {
 
-    @for (
-      producto
-      of productosDestacados;
-      track producto.id
-    ) {
+    <div class="estado-productos">
+      Cargando productos...
+    </div>
 
-      <app-product-card
-        [producto]="producto"
-      />
+  } @else if (productosDestacados.length === 0) {
 
-    }
+    <div class="estado-productos">
+      No hay productos destacados por el momento.
+    </div>
 
-  </div>
+  } @else {
+
+    <div class="products-container">
+
+      @for (
+        producto of productosDestacados;
+        track producto.id
+      ) {
+
+        <app-product-card
+          [producto]="producto"
+        />
+
+      }
+
+    </div>
+
+  }
 
 
   <div class="ver-todos">
 
-    <a href="#">
+    <a href="/productos">
       Ver todos los productos →
     </a>
 

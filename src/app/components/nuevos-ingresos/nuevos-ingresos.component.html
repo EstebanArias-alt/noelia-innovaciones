@@ -1,4 +1,7 @@
-<section class="nuevos" id="nuevos">
+<section
+  class="nuevos"
+  id="nuevos"
+>
 
   <div class="section-header">
 
@@ -18,20 +21,35 @@
   </div>
 
 
-  <div class="products-container">
+  @if (cargando) {
 
-    @for (
-      producto
-      of nuevos;
-      track producto.id
-    ) {
+    <div class="estado-productos">
+      Cargando nuevos ingresos...
+    </div>
 
-      <app-product-card
-        [producto]="producto"
-      />
+  } @else if (nuevos.length === 0) {
 
-    }
+    <div class="estado-productos">
+      No hay nuevos ingresos por el momento.
+    </div>
 
-  </div>
+  } @else {
+
+    <div class="products-container">
+
+      @for (
+        producto of nuevos;
+        track producto.id
+      ) {
+
+        <app-product-card
+          [producto]="producto"
+        />
+
+      }
+
+    </div>
+
+  }
 
 </section>

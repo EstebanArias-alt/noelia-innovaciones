@@ -13,9 +13,15 @@
     <input
       type="text"
       placeholder="Buscar productos..."
+      [(ngModel)]="busqueda"
+      (keyup.enter)="buscar()"
     >
 
-    <button aria-label="Buscar">
+    <button
+      type="button"
+      aria-label="Buscar"
+      (click)="buscar()"
+    >
       🔍
     </button>
 

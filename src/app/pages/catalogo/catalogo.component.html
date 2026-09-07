@@ -1,0 +1,206 @@
+<section class="catalogo">
+
+  <!-- ========================= -->
+  <!-- NAVEGACIÓN -->
+  <!-- ========================= -->
+
+  <div class="catalogo-navegacion">
+
+    <div class="breadcrumb">
+
+      <a routerLink="/">
+        Inicio
+      </a>
+
+      <span>›</span>
+
+      <strong>
+        Catálogo
+      </strong>
+
+    </div>
+
+
+    <a
+      routerLink="/"
+      class="volver-inicio"
+    >
+      ← Volver al inicio
+    </a>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- ENCABEZADO -->
+  <!-- ========================= -->
+
+  <div class="catalogo-header">
+
+    <span>
+      NOELIA INNOVACIONES
+    </span>
+
+    <h1>
+      Nuestro catálogo
+    </h1>
+
+    <p>
+      Encontrá sofás, sillones,
+      esquineros y muebles para
+      transformar tu hogar.
+    </p>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- LAYOUT -->
+  <!-- ========================= -->
+
+  <div class="catalogo-layout">
+
+
+    <!-- ========================= -->
+    <!-- FILTROS -->
+    <!-- ========================= -->
+
+    <aside class="filtros">
+
+      <h3>
+        Categorías
+      </h3>
+
+
+      @for (
+        categoria of categorias;
+        track categoria
+      ) {
+
+        <button
+          type="button"
+          [class.active]="
+            categoriaSeleccionada === categoria
+          "
+          (click)="
+            filtrarCategoria(categoria)
+          "
+        >
+          {{ categoria }}
+        </button>
+
+      }
+
+    </aside>
+
+
+    <!-- ========================= -->
+    <!-- PRODUCTOS -->
+    <!-- ========================= -->
+
+    <div class="productos-area">
+
+
+      <!-- BÚSQUEDA -->
+
+      @if (busqueda) {
+
+        <div class="resultado-busqueda">
+
+          <span>
+            Resultados para:
+            <strong>
+              "{{ busqueda }}"
+            </strong>
+          </span>
+
+          <button
+            type="button"
+            (click)="limpiarBusqueda()"
+            aria-label="Limpiar búsqueda"
+          >
+            ✕
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- BARRA SUPERIOR -->
+
+      <div class="productos-top">
+
+        <p>
+          {{ productos.length }}
+          productos
+        </p>
+
+
+        <select
+          [(ngModel)]="ordenSeleccionado"
+          (change)="ordenarProductos()"
+        >
+
+          <option value="default">
+            Ordenar por
+          </option>
+
+          <option value="menor-precio">
+            Menor precio
+          </option>
+
+          <option value="mayor-precio">
+            Mayor precio
+          </option>
+
+          <option value="nuevos">
+            Nuevos ingresos
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- GRID -->
+
+      @if (productos.length > 0) {
+
+        <div class="productos-grid">
+
+          @for (
+            producto of productos;
+            track producto.id
+          ) {
+
+            <app-product-card
+              [producto]="producto"
+            />
+
+          }
+
+        </div>
+
+      } @else {
+
+        <div class="sin-productos">
+
+          <h3>
+            No encontramos productos
+          </h3>
+
+          <p>
+            Todavía no hay productos
+            disponibles con estos filtros.
+          </p>
+
+        </div>
+
+      }
+
+    </div>
+
+  </div>
+
+</section>

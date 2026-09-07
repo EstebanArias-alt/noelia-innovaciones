@@ -1,0 +1,394 @@
+<section class="admin">
+
+  <!-- ========================= -->
+  <!-- ENCABEZADO -->
+  <!-- ========================= -->
+
+  <header class="admin-header">
+
+    <div>
+
+      <span class="marca">
+        NOELIA INNOVACIONES
+      </span>
+
+      <h1>
+        Panel de administración
+      </h1>
+
+      <p>
+        Administrá los productos publicados
+        en la tienda.
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn-salir"
+      type="button"
+      (click)="cerrarSesion()"
+    >
+      Cerrar sesión
+    </button>
+
+  </header>
+
+  <!-- ========================= -->
+<!-- ESTADÍSTICAS -->
+<!-- ========================= -->
+
+<div class="estadisticas-admin">
+
+  <div class="estadistica">
+    <span>Productos</span>
+    <strong>{{ totalProductos }}</strong>
+  </div>
+
+  <div class="estadistica">
+    <span>Disponibles</span>
+    <strong>{{ totalDisponibles }}</strong>
+  </div>
+
+  <div class="estadistica">
+    <span>Sin stock</span>
+    <strong>{{ totalSinStock }}</strong>
+  </div>
+
+  <div class="estadistica">
+    <span>En oferta</span>
+    <strong>{{ totalOfertas }}</strong>
+  </div>
+
+  <div class="estadistica">
+    <span>Destacados</span>
+    <strong>{{ totalDestacados }}</strong>
+  </div>
+
+</div>
+
+
+  <!-- ========================= -->
+  <!-- BUSCADOR Y FILTRO -->
+  <!-- ========================= -->
+
+<div class="filtros-admin">
+
+  <div class="buscador-admin">
+
+    <input
+      type="text"
+      placeholder="Buscar producto..."
+      [(ngModel)]="busqueda"
+    >
+
+  </div>
+
+
+  <select
+    [(ngModel)]="categoriaSeleccionada"
+  >
+
+    @for (
+      categoria of categoriasDisponibles;
+      track categoria
+    ) {
+
+      <option [value]="categoria">
+        {{ categoria }}
+      </option>
+
+    }
+
+  </select>
+
+
+  <select
+    [(ngModel)]="estadoSeleccionado"
+  >
+
+    <option value="Todos">
+      Todos los estados
+    </option>
+
+    <option value="Disponibles">
+      Disponibles
+    </option>
+
+    <option value="Sin stock">
+      Sin stock
+    </option>
+
+    <option value="En oferta">
+      En oferta
+    </option>
+
+    <option value="Nuevos">
+      Nuevos
+    </option>
+
+    <option value="Destacados">
+      Destacados
+    </option>
+
+  </select>
+
+</div>
+
+
+  <!-- ========================= -->
+  <!-- BARRA DE PRODUCTOS -->
+  <!-- ========================= -->
+
+  <div class="barra">
+
+    <div>
+
+      <strong>
+        Productos
+      </strong>
+
+      <span class="cantidad">
+        {{ productosFiltrados.length }}
+      </span>
+
+    </div>
+
+
+    <button
+      class="btn-nuevo"
+      type="button"
+      (click)="nuevoProducto()"
+    >
+      + Nuevo producto
+    </button>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- ESTADOS -->
+  <!-- ========================= -->
+
+  @if (cargando) {
+
+    <div class="estado">
+      Cargando productos...
+    </div>
+
+  } @else if (productos.length === 0) {
+
+    <div class="estado">
+      Todavía no hay productos.
+    </div>
+
+  } @else if (productosFiltrados.length === 0) {
+
+    <div class="estado">
+      No se encontraron productos.
+    </div>
+
+  } @else {
+
+
+    <!-- ========================= -->
+    <!-- LISTA DE PRODUCTOS -->
+    <!-- ========================= -->
+
+    <div class="productos">
+
+      @for (
+        producto of productosFiltrados;
+        track producto.id
+      ) {
+
+        <article class="producto">
+
+
+          <!-- FOTO -->
+
+         <img
+  [src]="imagenPrincipal(producto)"
+  [alt]="producto.nombre"
+  (error)="imagenError($event)"
+>
+
+
+          <!-- INFORMACIÓN -->
+
+<div class="producto-info">
+
+  <span class="categoria">
+    {{ producto.categoria }}
+  </span>
+
+  <h2>
+    {{ producto.nombre }}
+  </h2>
+
+  <div class="badges-producto">
+
+    @if (producto.oferta) {
+      <span class="badge badge-oferta">
+        OFERTA
+      </span>
+    }
+
+    @if (producto.nuevo) {
+      <span class="badge badge-nuevo">
+        NUEVO
+      </span>
+    }
+
+    @if (producto.destacado) {
+      <span class="badge badge-destacado">
+        DESTACADO
+      </span>
+    }
+
+  </div>
+
+  <strong class="precio">
+
+    @if (producto.precio) {
+      ${{ producto.precio | number:'1.0-0' }}
+    } @else {
+      Consultar
+    }
+
+  </strong>
+
+</div>
+
+
+<!-- ESTADOS RÁPIDOS -->
+
+<div class="estados-rapidos">
+
+  <button
+    type="button"
+    class="estado-rapido"
+    [class.activo]="producto.stock"
+    [disabled]="actualizandoEstado === producto.id + '-stock'"
+    (click)="cambiarEstado(producto, 'stock')"
+  >
+    <span class="punto"></span>
+
+    @if (
+      actualizandoEstado ===
+      producto.id + '-stock'
+    ) {
+      ...
+    } @else {
+      Stock
+    }
+  </button>
+
+
+  <button
+    type="button"
+    class="estado-rapido"
+    [class.activo]="producto.oferta"
+    [disabled]="actualizandoEstado === producto.id + '-oferta'"
+    (click)="cambiarEstado(producto, 'oferta')"
+  >
+    <span class="punto"></span>
+
+    @if (
+      actualizandoEstado ===
+      producto.id + '-oferta'
+    ) {
+      ...
+    } @else {
+      Oferta
+    }
+  </button>
+
+
+  <button
+    type="button"
+    class="estado-rapido"
+    [class.activo]="producto.nuevo"
+    [disabled]="actualizandoEstado === producto.id + '-nuevo'"
+    (click)="cambiarEstado(producto, 'nuevo')"
+  >
+    <span class="punto"></span>
+
+    @if (
+      actualizandoEstado ===
+      producto.id + '-nuevo'
+    ) {
+      ...
+    } @else {
+      Nuevo
+    }
+  </button>
+
+
+  <button
+    type="button"
+    class="estado-rapido"
+    [class.activo]="producto.destacado"
+    [disabled]="actualizandoEstado === producto.id + '-destacado'"
+    (click)="cambiarEstado(producto, 'destacado')"
+  >
+    <span class="punto"></span>
+
+    @if (
+      actualizandoEstado ===
+      producto.id + '-destacado'
+    ) {
+      ...
+    } @else {
+      Destacado
+    }
+  </button>
+
+</div>
+
+
+          <!-- ACCIONES -->
+
+          <div class="acciones-producto">
+
+            <button
+              class="btn-editar"
+              type="button"
+              (click)="editarProducto(producto)"
+            >
+              Editar
+            </button>
+
+
+            <button
+              class="btn-eliminar"
+              type="button"
+              [disabled]="eliminandoId === producto.id"
+              (click)="eliminarProducto(producto)"
+            >
+
+              @if (
+                eliminandoId === producto.id
+              ) {
+
+                Eliminando...
+
+              } @else {
+
+                Eliminar
+
+              }
+
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  }
+
+</section>
