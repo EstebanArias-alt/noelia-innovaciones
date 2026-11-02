@@ -503,3 +503,42 @@ h1 {
 }
 
 }
+.campo-stock {
+  max-width: 480px;
+  margin-bottom: 25px;
+}
+
+.campo-stock p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.ayuda-fotos { color: #666; font-size: 14px; line-height: 1.6; }
+.fotos-ordenables { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; margin-top: 22px; }
+.foto-ordenable { min-width: 0; border: 1px solid #e5e0d8; padding: 8px; background: #fff; cursor: grab; }
+.foto-ordenable.arrastrando { opacity: .45; border-color: #b88a3b; }
+.foto-vista { position: relative; height: 200px; background: #faf8f4; }
+.foto-vista img { width: 100%; height: 100%; object-fit: contain; }
+.foto-posicion { position: absolute; top: 6px; left: 6px; padding: 6px 8px; background: #151515; color: #d6ad62; font-size: 10px; font-weight: 700; }
+.foto-nombre { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 10px 0; font-size: 12px; }
+.foto-controles { display: flex; gap: 5px; }
+.foto-controles button, .foto-quitar { min-height: 36px; border: 1px solid #ddd; background: #faf8f4; font-family: inherit; cursor: pointer; }
+.foto-controles button { flex: 1; padding: 6px; }
+.foto-controles button:last-child { flex: 3; }
+.foto-quitar { width: 100%; margin-top: 7px; color: #a82424; }
+.foto-controles button:disabled, .foto-quitar:disabled { opacity: .4; cursor: default; }
+.foto-controles button:focus-visible, .foto-quitar:focus-visible { outline: 2px solid #b88a3b; outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.foto-color { margin-bottom: 10px; }
+.foto-color input { padding: 10px; }
+.foto-color label { font-size: 11px; }
+
+.ficha-admin > p { color: #666; font-size: 13px; line-height: 1.6; }
+.plantillas-ficha { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0; font-size: 12px; }
+.plantillas-ficha button, .agregar-caracteristica, .quitar-caracteristica { padding: 10px 12px; border: 1px solid #ddd; background: #faf8f4; font-family: inherit; cursor: pointer; }
+.fila-caracteristica { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: 12px; align-items: end; padding: 14px 0; border-top: 1px solid #eee; }
+.quitar-caracteristica { color: #a82424; margin-bottom: 4px; }
+.agregar-caracteristica { margin-top: 14px; color: #71501f; }
+.ficha-admin button:disabled { opacity: .5; cursor: default; }
+@media (max-width: 650px) { .fila-caracteristica { grid-template-columns: 1fr; } .quitar-caracteristica { justify-self: start; } }

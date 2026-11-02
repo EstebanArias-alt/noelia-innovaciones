@@ -383,3 +383,5 @@
   }
 
 }
+.tipo-precio { display: block; margin-top: 8px; font-size: 12px; color: #666; }
+.precio-tarjeta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; font-size: 14px; color: #555; }

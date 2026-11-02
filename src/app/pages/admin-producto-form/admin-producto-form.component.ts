@@ -1,6 +1,7 @@
 import {
   Component,
-  OnInit
+  OnInit,
+  OnDestroy
 } from '@angular/core';
 
 import {
@@ -13,13 +14,23 @@ import {
 } from '@angular/router';
 
 import {
-  ProductoImagen
+  ProductoImagen,
+  CaracteristicaProducto,
+  normalizarCaracteristicas
 } from '../../models/producto';
 
 import {
   SupabaseService
 } from '../../services/supabase.service';
 
+
+interface FotoProducto {
+  preview: string;
+  nombre: string;
+  color?: string;
+  imagen?: ProductoImagen;
+  archivo?: File;
+}
 
 @Component({
   selector: 'app-admin-producto-form',
@@ -36,7 +47,7 @@ import {
     './admin-producto-form.component.css'
 })
 export class AdminProductoFormComponent
-  implements OnInit {
+  implements OnInit, OnDestroy {
 
   modoEdicion = false;
 
@@ -62,6 +73,8 @@ export class AdminProductoFormComponent
 
   precio: number | null = null;
 
+  precioTarjeta: number | null = null;
+
   precioAnterior: number | null = null;
 
   cuotas = '';
@@ -70,9 +83,16 @@ export class AdminProductoFormComponent
 
   material = '';
 
+  caracteristicas: CaracteristicaProducto[] = [];
+  readonly ejemplosCaracteristicas: Record<string, string[]> = {
+    Colchones: ['Densidad', 'Altura', 'Tipo de tela', 'Firmeza', 'Peso máximo recomendado'],
+    Sillones: ['Tipo de tela', 'Relleno', 'Estructura', 'Cantidad de cuerpos'],
+    Muebles: ['Terminación', 'Espesor de placa', 'Tipo de herrajes']
+  };
+
   colores = '';
 
-  stock = true;
+  cantidadStock: number | null = 0;
 
   oferta = false;
 
@@ -94,15 +114,20 @@ export class AdminProductoFormComponent
   /* IMÁGENES */
   /* ========================= */
 
-  imagenesExistentes:
-    ProductoImagen[] = [];
+  fotos: FotoProducto[] = [];
+  arrastrando: number | null = null;
+  eliminandoFoto = false;
+  anuncioFotos = '';
 
-  imagenesSeleccionadas:
-    File[] = [];
+  get imagenesExistentes(): ProductoImagen[] {
+    return this.fotos.flatMap(foto => foto.imagen ? [foto.imagen] : []);
+  }
 
-  previews:
-    string[] = [];
-
+  ngOnDestroy(): void {
+    for (const foto of this.fotos) {
+      if (foto.archivo) URL.revokeObjectURL(foto.preview);
+    }
+  }
 
   constructor(
     private supabaseService:
@@ -189,17 +214,9 @@ export class AdminProductoFormComponent
     /* IMÁGENES EXISTENTES */
     /* ========================= */
 
-    this.imagenesExistentes =
-      [
-        ...(
-          producto
-            .producto_imagenes
-          ?? []
-        )
-      ].sort(
-        (a, b) =>
-          a.orden - b.orden
-      );
+    this.fotos = [...(producto.producto_imagenes ?? [])]
+      .sort((a, b) => Number(b.principal) - Number(a.principal) || a.orden - b.orden)
+      .map(imagen => ({ imagen, preview: imagen.url, nombre: 'Foto guardada', color: imagen.color ?? '' }));
 
 
     /* ========================= */
@@ -228,6 +245,8 @@ export class AdminProductoFormComponent
       producto.precio
       ?? null;
 
+
+    this.precioTarjeta = producto.precio_tarjeta ?? null;
 
     this.precioAnterior =
       producto.precio_anterior
@@ -276,9 +295,8 @@ export class AdminProductoFormComponent
     /* ESTADOS */
     /* ========================= */
 
-    this.stock =
-      producto.stock
-      ?? true;
+    this.cantidadStock = producto.cantidad_stock
+      ?? (producto.stock === false ? 0 : null);
 
 
     this.oferta =
@@ -298,64 +316,75 @@ export class AdminProductoFormComponent
   }
 
 
+  private claveCaracteristica(nombre: string): string {
+    return nombre.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+  agregarCaracteristica(): void {
+    if (!this.guardando && this.caracteristicas.length < 30) {
+      this.caracteristicas.push({ nombre: '', valor: '' });
+    }
+  }
+
+  quitarCaracteristica(indice: number): void {
+    if (!this.guardando) this.caracteristicas.splice(indice, 1);
+  }
+
+  usarEjemplos(tipo: string): void {
+    if (this.guardando) return;
+    const existentes = new Set(this.caracteristicas.map(item => this.claveCaracteristica(item.nombre)));
+    for (const nombre of this.ejemplosCaracteristicas[tipo] ?? []) {
+      if (!existentes.has(this.claveCaracteristica(nombre)) && this.caracteristicas.length < 30) {
+        this.caracteristicas.push({ nombre, valor: '' });
+        existentes.add(this.claveCaracteristica(nombre));
+      }
+    }
+  }
+
   /* ========================= */
   /* SELECCIONAR IMÁGENES */
   /* ========================= */
 
-  seleccionarImagenes(
-    event: Event
-  ): void {
-
+  seleccionarImagenes(event: Event): void {
     const input = event.target as HTMLInputElement;
-
-
-    if (!input.files) {
-      return;
+    if (!input.files || this.guardando || this.eliminandoFoto) return;
+    this.error = '';
+    for (const archivo of Array.from(input.files)) {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(archivo.type)) {
+        this.error = 'Solo se admiten imágenes JPG, PNG o WEBP.';
+        continue;
+      }
+      this.fotos.push({ archivo, nombre: archivo.name, preview: URL.createObjectURL(archivo) });
     }
-
-
-    this.imagenesSeleccionadas =
-      Array.from(
-        input.files
-      );
-
-
-    this.previews = [];
-
-
-    for (
-      const archivo
-      of this.imagenesSeleccionadas
-    ) {
-
-      const reader =
-        new FileReader();
-
-
-      reader.onload = () => {
-
-        if (
-          typeof reader.result
-          === 'string'
-        ) {
-
-          this.previews.push(
-            reader.result
-          );
-
-        }
-
-      };
-
-
-      reader.readAsDataURL(
-        archivo
-      );
-
-    }
-
+    // Permitir elegir el mismo archivo de nuevo y sumar otras tandas.
+    input.value = '';
+    this.anuncioFotos = `${this.fotos.length} fotos en total. La primera es la principal.`;
   }
 
+  moverFoto(desde: number, hasta: number): void {
+    if (this.guardando || this.eliminandoFoto || desde === hasta ||
+        desde < 0 || hasta < 0 || desde >= this.fotos.length || hasta >= this.fotos.length) return;
+    const [foto] = this.fotos.splice(desde, 1);
+    this.fotos.splice(hasta, 0, foto);
+    this.anuncioFotos = `Foto movida a la posición ${hasta + 1}. La primera es la principal.`;
+  }
+
+  iniciarArrastre(event: DragEvent, indice: number): void {
+    if (this.guardando || this.eliminandoFoto) { event.preventDefault(); return; }
+    this.arrastrando = indice;
+    event.dataTransfer?.setData('text/plain', String(indice));
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  }
+
+  permitirSoltar(event: DragEvent): void {
+    if (this.arrastrando !== null && !this.guardando && !this.eliminandoFoto) event.preventDefault();
+  }
+
+  soltarFoto(event: DragEvent, destino: number): void {
+    event.preventDefault();
+    if (this.arrastrando !== null) this.moverFoto(this.arrastrando, destino);
+    this.arrastrando = null;
+  }
 
   /* ========================= */
   /* GUARDAR PRODUCTO */
@@ -364,8 +393,49 @@ export class AdminProductoFormComponent
   async guardar():
     Promise<void> {
 
+    if (this.guardando || this.eliminandoFoto) return;
+
     this.error = '';
 
+    if (this.cantidadStock === null ||
+        !Number.isInteger(this.cantidadStock) ||
+        this.cantidadStock < 0 || this.cantidadStock > 2147483647) {
+      this.error = 'Ingresá una cantidad de stock entera entre 0 y 2147483647.';
+      return;
+    }
+
+    if ([this.precio, this.precioTarjeta, this.precioAnterior].some(
+      valor => valor !== null && (!Number.isFinite(valor) || valor <= 0)
+    )) {
+      this.error = 'Los precios deben ser mayores que 0. Dejá el campo vacío si es a consultar.';
+      return;
+    }
+
+    if (this.fotos.some(foto => (foto.color?.trim().length ?? 0) > 80)) {
+      this.error = 'El nombre de color de cada foto admite hasta 80 caracteres.';
+      return;
+    }
+
+    if (this.caracteristicas.length > 30 || this.caracteristicas.some(item =>
+      item.nombre.trim().length > 80 || item.valor.trim().length > 1000
+    )) {
+      this.error = 'La ficha admite hasta 30 características, con un nombre de hasta 80 caracteres y un valor de hasta 1000.';
+      return;
+    }
+    const filasConDatos = this.caracteristicas.filter(item => item.nombre.trim() || item.valor.trim());
+    // Las filas de ejemplos sin valor se omiten; un valor siempre necesita nombre.
+    if (filasConDatos.some(item => item.valor.trim() && !item.nombre.trim())) {
+      this.error = 'Ingresá el nombre de cada característica que tenga un valor.';
+      return;
+    }
+    const ficha = normalizarCaracteristicas(filasConDatos);
+    const nombres = ficha.map(item => this.claveCaracteristica(item.nombre));
+    if (new Set(nombres).size !== nombres.length ||
+        (this.material.trim() && nombres.includes('material')) ||
+        (this.medidas.trim() && nombres.includes('medidas'))) {
+      this.error = 'Hay características repetidas. Usá una sola fila por dato; Material y Medidas ya tienen sus campos arriba.';
+      return;
+    }
 
     /* ========================= */
     /* VALIDAR NOMBRE */
@@ -444,6 +514,8 @@ if (!this.modoEdicion) {
       precio:
         this.precio,
 
+      precio_tarjeta: this.precioTarjeta,
+
       precio_anterior:
         this.precioAnterior,
 
@@ -456,11 +528,14 @@ if (!this.modoEdicion) {
       material:
         this.material.trim(),
 
+      caracteristicas: ficha,
+
       colores:
         this.colores.trim(),
 
-      stock:
-        this.stock,
+      cantidad_stock: this.cantidadStock,
+
+      stock: this.cantidadStock > 0,
 
       oferta:
         this.oferta,
@@ -523,89 +598,42 @@ if (!this.modoEdicion) {
     }
 
 
-    /* ========================= */
-    /* SUBIR IMÁGENES */
-    /* ========================= */
+    // Conservar el producto y las subidas completadas para reintentar sin duplicados.
+    this.productoId = resultado.id;
+    this.slug = resultado.slug;
+    this.modoEdicion = true;
 
-    if (
-      this.imagenesSeleccionadas
-        .length > 0
-    ) {
-
-      let ordenInicial = 0;
-
-
-      if (
-        this.imagenesExistentes
-          .length > 0
-      ) {
-
-        ordenInicial =
-          Math.max(
-            ...this
-              .imagenesExistentes
-              .map(
-                imagen =>
-                  imagen.orden
-              )
-          );
-
-      }
-
-
-      for (
-        let i = 0;
-        i <
-        this.imagenesSeleccionadas
-          .length;
-        i++
-      ) {
-
-        const archivo =
-          this
-            .imagenesSeleccionadas[i];
-
-
-        const orden =
-          ordenInicial + i;
-
-
-        const imagenSubida =
-          await this.supabaseService
-            .subirImagenProducto(
-              resultado.id,
-              resultado.slug,
-              archivo,
-              orden
-            );
-
-
-        if (
-          !imagenSubida
-        ) {
-
-          this.guardando =
-            false;
-
-          this.error =
-            `El producto se guardó, pero no se pudo subir la imagen "${archivo.name}".`;
-
+    try {
+      let siguienteOrden = Math.max(0, ...this.imagenesExistentes.map(imagen => imagen.orden));
+      for (const foto of this.fotos) {
+        if (!foto.archivo) continue;
+        const imagen = await this.supabaseService.subirImagenProducto(
+          resultado.id, resultado.slug, foto.archivo, siguienteOrden++
+        );
+        if (!imagen) {
+          this.error = `El producto se guardó, pero no se pudo subir "${foto.nombre}". Podés reintentar sin volver a seleccionar las fotos.`;
           return;
-
         }
-
+        URL.revokeObjectURL(foto.preview);
+        foto.preview = imagen.url;
+        foto.imagen = imagen;
+        foto.archivo = undefined;
       }
 
+      const ordenGuardado = await this.supabaseService.guardarGaleriaProducto(
+        resultado.id, this.imagenesExistentes.map(imagen => imagen.id),
+        this.fotos.map(foto => foto.color?.trim() ?? '')
+      );
+      if (!ordenGuardado) {
+        this.error = 'Las fotos se subieron, pero no se pudo guardar el orden y los colores. Reintentá guardar; si otra persona modificó las fotos, recargá el producto.';
+        return;
+      }
+      await this.router.navigate(['/admin']);
+    } catch {
+      this.error = 'No se pudo terminar de guardar las fotos. Revisá la conexión y reintentá.';
+    } finally {
+      this.guardando = false;
     }
-
-
-    this.guardando = false;
-
-
-    await this.router.navigate([
-      '/admin'
-    ]);
-
   }
 
 
@@ -656,146 +684,32 @@ if (!this.modoEdicion) {
   }
 
 
-  /* ========================= */
-  /* IMAGEN PRINCIPAL */
-  /* ========================= */
-
-  async hacerPrincipal(
-    imagen: ProductoImagen
-  ): Promise<void> {
-
-    if (
-      this.productoId === null
-    ) {
-      return;
-    }
-
-
-    const actualizado =
-      await this.supabaseService
-        .establecerImagenPrincipal(
-          this.productoId,
-          imagen.id
-        );
-
-
-    if (!actualizado) {
-
-      this.error =
-        'No se pudo cambiar la imagen principal.';
-
-      return;
-
-    }
-
-
-    this.imagenesExistentes =
-      this.imagenesExistentes
-        .map(
-          item => ({
-            ...item,
-
-            principal:
-              item.id ===
-              imagen.id
-          })
-        );
-
-  }
-
-
-  /* ========================= */
-  /* ELIMINAR IMAGEN */
-  /* ========================= */
-
-  async eliminarImagen(
-    imagen: ProductoImagen
-  ): Promise<void> {
-
-    const confirmar =
-      window.confirm(
-        '¿Seguro que querés eliminar esta imagen?'
-      );
-
-
-    if (!confirmar) {
-      return;
-    }
-
-
-    const eraPrincipal =
-      imagen.principal;
-
-
-    const eliminado =
-      await this.supabaseService
-        .eliminarImagenProducto(
-          imagen
-        );
-
-
-    if (!eliminado) {
-
-      this.error =
-        'No se pudo eliminar la imagen.';
-
-      return;
-
-    }
-
-
-    this.imagenesExistentes =
-      this.imagenesExistentes
-        .filter(
-          item =>
-            item.id !==
-            imagen.id
-        );
-
-
-    /* ========================= */
-    /* SI ERA PRINCIPAL */
-    /* ELEGIR OTRA */
-    /* ========================= */
-
-    if (
-      eraPrincipal &&
-      this.imagenesExistentes
-        .length > 0 &&
-      this.productoId !== null
-    ) {
-
-      const nuevaPrincipal =
-        this
-          .imagenesExistentes[0];
-
-
-      const actualizado =
-        await this.supabaseService
-          .establecerImagenPrincipal(
-            this.productoId,
-            nuevaPrincipal.id
-          );
-
-
-      if (actualizado) {
-
-        this.imagenesExistentes =
-          this.imagenesExistentes
-            .map(
-              item => ({
-                ...item,
-
-                principal:
-                  item.id ===
-                  nuevaPrincipal.id
-              })
-            );
-
+  async quitarFoto(indice: number): Promise<void> {
+    if (this.guardando || this.eliminandoFoto) return;
+    const foto = this.fotos[indice];
+    if (!foto) return;
+    if (foto.imagen) {
+      if (!window.confirm('¿Eliminar esta foto guardada? Se eliminará inmediatamente.')) return;
+      this.eliminandoFoto = true;
+      try {
+        const eliminado = await this.supabaseService.eliminarImagenProducto(foto.imagen);
+        if (!eliminado) { this.error = 'No se pudo eliminar la imagen.'; return; }
+        this.fotos.splice(indice, 1);
+        if (foto.imagen.principal && this.imagenesExistentes.length > 0 && this.productoId !== null) {
+          const principal = this.imagenesExistentes[0];
+          const actualizado = await this.supabaseService.establecerImagenPrincipal(this.productoId, principal.id);
+          this.imagenesExistentes.forEach(imagen => imagen.principal = actualizado && imagen.id === principal.id);
+          if (!actualizado) this.error = 'La foto se eliminó. Guardá los cambios para establecer la nueva principal.';
+        }
+      } catch {
+        this.error = 'No se pudo completar la eliminación. Recargá el producto para comprobar sus fotos.';
+      } finally {
+        this.eliminandoFoto = false;
       }
-
+    } else {
+      URL.revokeObjectURL(foto.preview);
+      this.fotos.splice(indice, 1);
     }
-
+    this.anuncioFotos = `${this.fotos.length} fotos en total.`;
   }
-
 }

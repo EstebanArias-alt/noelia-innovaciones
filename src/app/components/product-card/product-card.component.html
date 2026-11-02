@@ -74,19 +74,20 @@
             producto.precioAnterior ||
             producto.precio_anterior
           )
-          | number:'1.0-0'
+          | number:'1.0-2'
         }}
       </span>
 
     }
 
+    <span class="tipo-precio">Precio de contado</span>
     <div class="precio-actual">
 
       <strong class="precio">
         $
         {{
           producto.precio
-          | number:'1.0-0'
+          | number:'1.0-2'
         }}
       </strong>
 
@@ -105,16 +106,25 @@
 } @else {
 
   <strong class="precio">
-    Consultar precio
+    Precio de contado: consultar
   </strong>
 
 }
 
 
+    <div class="precio-tarjeta">
+      @if (producto.precio_tarjeta) {
+        <span>Con tarjeta:</span>
+        <strong>${{ producto.precio_tarjeta | number:'1.0-2' }}</strong>
+      } @else {
+        <span>Precio con tarjeta: consultar</span>
+      }
+    </div>
+
     @if (producto.cuotas) {
 
       <span class="cuotas">
-        {{ producto.cuotas }}
+        Tarjeta: {{ producto.cuotas }}
       </span>
 
     }

@@ -34,7 +34,7 @@
 
           <img
             [src]="imagenSeleccionada"
-            [alt]="producto.nombre"
+            [alt]="producto.nombre + (colorDeImagen ? ' · ' + colorDeImagen : '')"
           >
 
           @if (producto.oferta) {
@@ -56,36 +56,21 @@
         </div>
 
 
-        @if ((producto.imagenes?.length ?? 0) > 1) {
-
-          <div class="miniaturas">
-
-            @for (
-              imagen of producto.imagenes;
-              track imagen
-            ) {
-
-              <button
-                type="button"
-                [class.active]="
-                  imagenSeleccionada === imagen
-                "
-                (click)="seleccionarImagen(imagen)"
-              >
-
-                <img
-                  [src]="imagen"
-                  [alt]="producto.nombre"
-                >
-
+        @if (galeriaVisible.length > 0) {
+          <div class="miniaturas" aria-label="Fotos del producto">
+            @for (imagen of galeriaVisible; track imagen.id; let i = $index) {
+              <button type="button" [class.active]="imagenSeleccionada === imagen.url"
+                [attr.aria-pressed]="imagenSeleccionada === imagen.url"
+                [attr.aria-label]="'Ver foto ' + (i + 1) + (imagen.color ? ' · ' + imagen.color : '')"
+                (click)="seleccionarImagen(imagen.url)">
+                <img [src]="imagen.url" [alt]="imagen.color || producto.nombre" loading="lazy">
               </button>
-
             }
-
           </div>
-
         }
-
+        <p class="leyenda-galeria" aria-live="polite">
+          {{ colorDeImagen || 'Fotos del producto' }} · {{ galeriaVisible.length }} {{ galeriaVisible.length === 1 ? 'foto' : 'fotos' }}
+        </p>
       </div>
 
 
@@ -111,6 +96,29 @@
         }
 
 
+        @if (coloresConFoto.length > 0) {
+          <div class="colores">
+            <h3>Elegí el color <span>{{ colorDeImagen }}</span></h3>
+            <div class="colores-list" role="group" aria-label="Elegir color del producto">
+              @for (color of coloresConFoto; track color) {
+                <button type="button" [class.elegido]="colorSeleccionado === color"
+                  [attr.aria-pressed]="colorSeleccionado === color" (click)="seleccionarColor(color)">
+                  {{ color }}
+                </button>
+              }
+              <button type="button" class="todas-fotos" [class.elegido]="!colorSeleccionado"
+                [attr.aria-pressed]="!colorSeleccionado" (click)="seleccionarColor('')">Todas las fotos</button>
+            </div>
+          </div>
+        }
+        @if (coloresSinFoto.length > 0) {
+          <p class="colores-consulta">Otros colores a consultar:
+            @for (color of coloresSinFoto; track color; let ultimo = $last) {
+              {{ color }}{{ ultimo ? '' : ', ' }}
+            }
+          </p>
+        }
+
 <div class="precio-container">
 
   @if (
@@ -129,7 +137,7 @@
           producto.precioAnterior ||
           producto.precio_anterior
         )
-        | number:'1.0-0'
+        | number:'1.0-2'
       }}
 
     </span>
@@ -139,6 +147,7 @@
 
   @if (producto.precio) {
 
+    <span class="tipo-precio">Precio de contado</span>
     <div class="precio-actual">
 
       <strong class="precio">
@@ -146,7 +155,7 @@
         $
         {{
           producto.precio
-          | number:'1.0-0'
+          | number:'1.0-2'
         }}
 
       </strong>
@@ -165,16 +174,25 @@
   } @else {
 
     <strong class="precio">
-      Consultar precio
+      Precio de contado: consultar
     </strong>
 
   }
 
 
-  @if (producto.cuotas) {
+  <div class="precio-tarjeta">
+      @if (producto.precio_tarjeta) {
+        <span>Con tarjeta:</span>
+        <strong>${{ producto.precio_tarjeta | number:'1.0-2' }}</strong>
+      } @else {
+        <span>Precio con tarjeta: consultar</span>
+      }
+    </div>
+
+    @if (producto.cuotas) {
 
     <span class="cuotas">
-      {{ producto.cuotas }}
+      Tarjeta: {{ producto.cuotas }}
     </span>
 
   }
@@ -183,76 +201,6 @@
 
 
         <div class="separator"></div>
-
-
-        <div class="detalles">
-
-
-          @if (producto.medidas) {
-
-            <div class="detalle">
-
-              <span>
-                Medidas
-              </span>
-
-              <strong>
-                {{ producto.medidas }}
-              </strong>
-
-            </div>
-
-          }
-
-
-          @if (producto.material) {
-
-            <div class="detalle">
-
-              <span>
-                Material
-              </span>
-
-              <strong>
-                {{ producto.material }}
-              </strong>
-
-            </div>
-
-          }
-
-        </div>
-
-
-        @if (
-          producto.colores &&
-          producto.colores.length > 0
-        ) {
-
-          <div class="colores">
-
-            <h3>
-              Colores disponibles
-            </h3>
-
-            <div class="colores-list">
-
-              @for (
-                color of producto.colores;
-                track color
-              ) {
-
-                <span>
-                  {{ color }}
-                </span>
-
-              }
-
-            </div>
-
-          </div>
-
-        }
 
 
         <div class="stock">
@@ -278,7 +226,7 @@
   class="whatsapp"
   [class.whatsapp-sin-stock]="!producto.stock"
   [href]="whatsappUrl"
-  target="_blank"
+  target="_blank" rel="noopener noreferrer"
 >
   @if (producto.stock) {
     Consultar por WhatsApp
@@ -298,6 +246,21 @@
       </div>
 
     </section>
+
+    @if (fichaTecnica.length > 0) {
+      <section class="ficha-tecnica" aria-labelledby="titulo-ficha-tecnica">
+        <span class="subtitulo">CONOCÉ LOS DETALLES</span>
+        <h2 id="titulo-ficha-tecnica">Características del producto</h2>
+        <dl>
+          @for (item of fichaTecnica; track $index) {
+            <div class="fila-ficha">
+              <dt>{{ item.nombre }}</dt>
+              <dd>{{ item.valor }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+    }
 
     @if (productosRelacionados.length > 0) {
 
@@ -340,6 +303,10 @@
 }
 
   </main>
+
+} @else if (cargando) {
+
+  <p class="producto-no-encontrado" role="status">Cargando producto…</p>
 
 } @else {
 

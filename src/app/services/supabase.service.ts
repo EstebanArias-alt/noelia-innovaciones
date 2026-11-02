@@ -1,5 +1,6 @@
 import {
-  ProductoImagen
+  ProductoImagen,
+  CaracteristicaProducto
 } from '../models/producto';
 
 import {
@@ -49,7 +50,8 @@ export class SupabaseService {
             id,
             url,
             orden,
-            principal
+            principal,
+            color
           )
         `)
         .order(
@@ -93,7 +95,8 @@ export class SupabaseService {
             id,
             url,
             orden,
-            principal
+            principal,
+            color
           )
         `)
         .eq(
@@ -136,7 +139,8 @@ export class SupabaseService {
             id,
             url,
             orden,
-            principal
+            principal,
+            color
           )
         `)
         .eq(
@@ -170,12 +174,15 @@ export class SupabaseService {
       categoria: string;
       descripcion: string;
       precio: number | null;
+      precio_tarjeta: number | null;
       precio_anterior: number | null;
       cuotas: string;
       medidas: string;
       material: string;
+      caracteristicas: CaracteristicaProducto[];
       colores: string;
       stock: boolean;
+      cantidad_stock: number;
       oferta: boolean;
       nuevo: boolean;
       destacado: boolean;
@@ -221,12 +228,15 @@ export class SupabaseService {
       categoria: string;
       descripcion: string;
       precio: number | null;
+      precio_tarjeta: number | null;
       precio_anterior: number | null;
       cuotas: string;
       medidas: string;
       material: string;
+      caracteristicas: CaracteristicaProducto[];
       colores: string;
       stock: boolean;
+      cantidad_stock: number;
       oferta: boolean;
       nuevo: boolean;
       destacado: boolean;
@@ -904,7 +914,7 @@ async generarSlugUnico(
 
 async actualizarEstadoProducto(
   id: number,
-  campo: 'stock' | 'oferta' | 'nuevo' | 'destacado',
+  campo: 'oferta' | 'nuevo' | 'destacado',
   valor: boolean
 ): Promise<boolean> {
 
@@ -931,5 +941,30 @@ async actualizarEstadoProducto(
 
 
 
+
+  async ordenarImagenesProducto(productoId: number, imagenIds: number[]): Promise<boolean> {
+    const { error } = await this.supabase.rpc('ordenar_imagenes_producto', {
+      p_producto_id: productoId,
+      p_imagen_ids: imagenIds
+    });
+    if (error) {
+      console.error('Error guardando orden de fotos:', error);
+      return false;
+    }
+    return true;
+  }
+
+  async guardarGaleriaProducto(productoId: number, imagenIds: number[], colores: string[]): Promise<boolean> {
+    const { error } = await this.supabase.rpc('guardar_galeria_producto', {
+      p_producto_id: productoId,
+      p_imagen_ids: imagenIds,
+      p_colores: colores
+    });
+    if (error) {
+      console.error('Error guardando galería y colores:', error);
+      return false;
+    }
+    return true;
+  }
 
 }

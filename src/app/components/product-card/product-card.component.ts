@@ -57,9 +57,12 @@ get whatsappUrl(): string {
 
   const numero = '5493884605421';
 
-  const precio = this.producto.precio
-    ? `$${this.producto.precio.toLocaleString('es-AR')}`
-    : 'Consultar precio';
+    const precioContado = this.producto.precio
+      ? `$${this.producto.precio.toLocaleString('es-AR')}` : 'Consultar';
+    const precioTarjeta = this.producto.precio_tarjeta
+      ? `$${this.producto.precio_tarjeta.toLocaleString('es-AR')}` : 'Consultar';
+    const precio = `Contado: ${precioContado}\nCon tarjeta: ${precioTarjeta}` +
+      (this.producto.cuotas ? `\nCuotas con tarjeta: ${this.producto.cuotas}` : '');
 
   const enlace =
     `${window.location.origin}/producto/${this.producto.slug}`;

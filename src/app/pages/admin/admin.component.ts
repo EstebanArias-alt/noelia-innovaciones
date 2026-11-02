@@ -217,7 +217,7 @@ get categoriasDisponibles() {
 
 async cambiarEstado(
   producto: Producto,
-  campo: 'stock' | 'oferta' | 'nuevo' | 'destacado'
+  campo: 'oferta' | 'nuevo' | 'destacado'
 ): Promise<void> {
 
   const clave =

@@ -25,7 +25,7 @@
       type="submit"
       class="guardar"
       form="productoForm"
-      [disabled]="guardando"
+      [disabled]="guardando || eliminandoFoto"
     >
       @if (guardando) {
         Guardando...
@@ -124,10 +124,12 @@
       <div class="grid">
 
         <div class="campo">
-          <label>Precio</label>
+          <label for="precio-contado">Precio de contado</label>
 
           <input
             type="number"
+            id="precio-contado"
+            min="0.01" step="0.01"
             name="precio"
             [(ngModel)]="precio"
             placeholder="850000"
@@ -136,10 +138,19 @@
 
 
         <div class="campo">
-          <label>Precio anterior</label>
+          <label for="precio-tarjeta">Precio con tarjeta</label>
+          <input type="number" id="precio-tarjeta" name="precioTarjeta"
+            [(ngModel)]="precioTarjeta" min="0.01" step="0.01" placeholder="Ej: 117000">
+          <small>Precio total con tarjeta. Dejá vacío si es a consultar.</small>
+        </div>
+
+        <div class="campo">
+          <label for="precio-anterior">Precio anterior de contado (opcional)</label>
 
           <input
             type="number"
+            id="precio-anterior"
+            min="0.01" step="0.01"
             name="precioAnterior"
             [(ngModel)]="precioAnterior"
             placeholder="920000"
@@ -148,10 +159,11 @@
 
 
         <div class="campo campo-completo">
-          <label>Cuotas</label>
+          <label for="cuotas">Cuotas con tarjeta</label>
 
           <input
             type="text"
+            id="cuotas"
             name="cuotas"
             [(ngModel)]="cuotas"
             placeholder="Ej: 12 cuotas sin interés"
@@ -213,191 +225,109 @@
     </div>
 
 
+    <div class="seccion ficha-admin">
+      <h2>Ficha técnica del producto</h2>
+      <p>Agregá los datos específicos de este artículo. Medidas y material se completan arriba.
+        Solo se publican las filas con nombre y valor; los ejemplos sin completar se omiten.</p>
+      <div class="plantillas-ficha" role="group" aria-label="Agregar ejemplos de características">
+        <span>Agregar ejemplos:</span>
+        <button type="button" [disabled]="guardando" (click)="usarEjemplos('Colchones')">Colchones</button>
+        <button type="button" [disabled]="guardando" (click)="usarEjemplos('Sillones')">Sillones</button>
+        <button type="button" [disabled]="guardando" (click)="usarEjemplos('Muebles')">Muebles</button>
+      </div>
+      @for (item of caracteristicas; track item; let i = $index) {
+        <div class="fila-caracteristica">
+          <div class="campo">
+            <label [for]="'caracteristica-nombre-' + i">Característica</label>
+            <input [id]="'caracteristica-nombre-' + i" [name]="'caracteristicaNombre' + i"
+              [(ngModel)]="item.nombre" maxlength="80" [disabled]="guardando" placeholder="Ej: Densidad">
+          </div>
+          <div class="campo">
+            <label [for]="'caracteristica-valor-' + i">Valor</label>
+            <textarea [id]="'caracteristica-valor-' + i" [name]="'caracteristicaValor' + i"
+              [(ngModel)]="item.valor" maxlength="1000" [disabled]="guardando" rows="2"
+              placeholder="Ej: 26 kg/m³"></textarea>
+          </div>
+          <button type="button" class="quitar-caracteristica" [disabled]="guardando"
+            [attr.aria-label]="'Quitar característica ' + (i + 1)" (click)="quitarCaracteristica(i)">Quitar</button>
+        </div>
+      }
+      <button type="button" class="agregar-caracteristica" [disabled]="guardando || caracteristicas.length >= 30"
+        (click)="agregarCaracteristica()">+ Agregar característica</button>
+    </div>
+
     <!-- ========================= -->
     <!-- IMÁGENES -->
     <!-- ========================= -->
 
-<!-- ========================= -->
-<!-- IMÁGENES DEL PRODUCTO -->
-<!-- ========================= -->
-
 <div class="seccion">
-
   <h2>Fotos del producto</h2>
-
-
-  <!-- FOTOS QUE YA ESTÁN EN SUPABASE -->
-
-  @if (
-    modoEdicion &&
-    imagenesExistentes.length > 0
-  ) {
-
-    <div class="imagenes-actuales">
-
-      <h3>
-        Fotos actuales
-      </h3>
-
-
-      <div class="previews">
-
-        @for (
-          imagen of imagenesExistentes;
-          track imagen.id;
-          let i = $index
-        ) {
-
-          <div class="preview">
-
-            <img
-              [src]="imagen.url"
-              alt="Imagen del producto"
-            >
-
-
-            <!-- PRINCIPAL -->
-
-            @if (imagen.principal) {
-
-              <span class="principal">
-                PRINCIPAL
-              </span>
-
-            }
-
-
-            <!-- ACCIONES -->
-
-<div class="acciones-imagen">
-
-  @if (!imagen.principal) {
-
-    <button
-      type="button"
-      class="btn-principal"
-      title="Usar como imagen principal"
-      (click)="hacerPrincipal(imagen)"
-    >
-      ★ Principal
-    </button>
-
-  }
-
-  <button
-    type="button"
-    class="btn-eliminar-imagen"
-    title="Eliminar imagen"
-    (click)="eliminarImagen(imagen)"
-  >
-    Eliminar
-  </button>
-
-</div>
-
-          </div>
-
-        }
-
-      </div>
-
-    </div>
-
-  }
-
-
-  <!-- ========================= -->
-  <!-- SUBIR NUEVAS FOTOS -->
-  <!-- ========================= -->
+  <p class="ayuda-fotos">Seleccioná todas las fotos juntas. Arrastralas o usá las flechas para ordenarlas.
+    La primera será la principal. Asigná un color a cada foto para que el cliente pueda elegirlo en la tienda.
+    Usá el mismo nombre en las distintas vistas del mismo color. Todo se aplica al guardar.</p>
 
   <label class="upload-box">
-
-    <input
-      type="file"
-      accept="image/png,image/jpeg,image/webp"
-      multiple
-      hidden
-      (change)="seleccionarImagenes($event)"
-    >
-
-    <strong>
-      + Seleccionar imágenes
-    </strong>
-
-    <small>
-      JPG, PNG o WEBP
-    </small>
-
+    <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden
+      [disabled]="guardando || eliminandoFoto" (change)="seleccionarImagenes($event)">
+    <strong>+ Seleccionar imágenes</strong>
+    <small>JPG, PNG o WEBP · Podés agregar más fotos sin perder las seleccionadas</small>
   </label>
 
-
-  <!-- ========================= -->
-  <!-- PREVIEW NUEVAS FOTOS -->
-  <!-- ========================= -->
-
-  @if (previews.length > 0) {
-
-    <div class="nuevas-imagenes">
-
-      <h3>
-        Imágenes seleccionadas
-      </h3>
-
-
-      <div class="previews">
-
-        @for (
-          preview of previews;
-          track $index
-        ) {
-
-          <div class="preview">
-
-            <img
-              [src]="preview"
-              alt="Vista previa"
-            >
-
-
-            @if (
-              $index === 0 &&
-              imagenesExistentes.length === 0
-            ) {
-
-              <span class="principal">
-                PRINCIPAL
-              </span>
-
-            }
-
-          </div>
-
-        }
-
-      </div>
-
-    </div>
-
-  }
-
+  <p class="sr-only" aria-live="polite">{{ anuncioFotos }}</p>
+  <div class="fotos-ordenables">
+    @for (foto of fotos; track foto; let i = $index) {
+      <article class="foto-ordenable" [class.arrastrando]="arrastrando === i"
+        [draggable]="!guardando && !eliminandoFoto"
+        (dragstart)="iniciarArrastre($event, i)" (dragend)="arrastrando = null"
+        (dragover)="permitirSoltar($event)" (drop)="soltarFoto($event, i)">
+        <div class="foto-vista">
+          <img [src]="foto.preview" [alt]="'Foto ' + (i + 1) + ' del producto'" draggable="false">
+          <span class="foto-posicion">{{ i === 0 ? '★ PRINCIPAL' : 'FOTO ' + (i + 1) }}</span>
+        </div>
+        <span class="foto-nombre" [title]="foto.nombre">{{ foto.nombre }}</span>
+        <div class="campo foto-color">
+          <label [for]="'foto-color-' + i">Color de esta foto (opcional)</label>
+          <input [id]="'foto-color-' + i" [name]="'fotoColor' + i"
+            [(ngModel)]="foto.color" maxlength="80" placeholder="Ej: Blanco y negro"
+            [disabled]="guardando || eliminandoFoto">
+        </div>
+        <div class="foto-controles">
+          <button type="button" [disabled]="i === 0 || guardando || eliminandoFoto"
+            [attr.aria-label]="'Mover foto ' + (i + 1) + ' antes'" (click)="moverFoto(i, i - 1)">←</button>
+          <button type="button" [disabled]="i === fotos.length - 1 || guardando || eliminandoFoto"
+            [attr.aria-label]="'Mover foto ' + (i + 1) + ' después'" (click)="moverFoto(i, i + 1)">→</button>
+          <button type="button" [disabled]="i === 0 || guardando || eliminandoFoto"
+            [attr.aria-label]="'Usar foto ' + (i + 1) + ' como principal'" (click)="moverFoto(i, 0)">★ Principal</button>
+        </div>
+        <button type="button" class="foto-quitar" [disabled]="guardando || eliminandoFoto"
+          [attr.aria-label]="(foto.imagen ? 'Eliminar foto ' : 'Quitar foto seleccionada ') + (i + 1)"
+          (click)="quitarFoto(i)">{{ foto.imagen ? 'Eliminar' : 'Quitar' }}</button>
+      </article>
+    }
+  </div>
 </div>
 
 
     <div class="seccion">
 
-      <h2>Publicación</h2>
+      <h2>Stock y publicación</h2>
+
+      <div class="campo campo-stock">
+        <label for="cantidad-stock">Cantidad en stock</label>
+        <input id="cantidad-stock" type="number" name="cantidadStock"
+          [(ngModel)]="cantidadStock" min="0" max="2147483647" step="1" required
+          aria-describedby="ayuda-stock" placeholder="Ingresá las unidades disponibles">
+        <small id="ayuda-stock">Ingresá 0 si no quedan unidades. La disponibilidad se actualiza automáticamente.</small>
+        @if (cantidadStock === null) {
+          <p role="status">Cantidad pendiente: ingresá el stock real de este producto.</p>
+        } @else if (cantidadStock === 0) {
+          <p role="status">Sin stock</p>
+        } @else if (cantidadStock > 0) {
+          <p role="status">Disponible: {{ cantidadStock }} {{ cantidadStock === 1 ? 'unidad' : 'unidades' }}</p>
+        }
+      </div>
 
       <div class="opciones">
-
-        <label>
-          <input
-            type="checkbox"
-            name="stock"
-            [(ngModel)]="stock"
-          >
-          En stock
-        </label>
-
 
         <label>
           <input
@@ -447,6 +377,7 @@
       <button
         type="button"
         class="cancelar"
+        [disabled]="guardando || eliminandoFoto"
         (click)="cancelar()"
       >
         Cancelar
@@ -456,7 +387,7 @@
       <button
         type="submit"
         class="guardar"
-        [disabled]="guardando"
+        [disabled]="guardando || eliminandoFoto"
       >
 
         @if (guardando) {

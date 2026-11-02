@@ -251,12 +251,19 @@
   <strong class="precio">
 
     @if (producto.precio) {
-      ${{ producto.precio | number:'1.0-0' }}
+      Contado: ${{ producto.precio | number:'1.0-2' }}
     } @else {
-      Consultar
+      Contado: consultar
     }
 
   </strong>
+  <div class="precio-tarjeta-admin">
+    @if (producto.precio_tarjeta) {
+      Tarjeta: ${{ producto.precio_tarjeta | number:'1.0-2' }}
+    } @else {
+      Tarjeta: consultar
+    }
+  </div>
 
 </div>
 
@@ -269,18 +276,16 @@
     type="button"
     class="estado-rapido"
     [class.activo]="producto.stock"
-    [disabled]="actualizandoEstado === producto.id + '-stock'"
-    (click)="cambiarEstado(producto, 'stock')"
+    [attr.aria-label]="'Editar cantidad de stock de ' + producto.nombre"
+    (click)="editarProducto(producto)"
   >
     <span class="punto"></span>
-
-    @if (
-      actualizandoEstado ===
-      producto.id + '-stock'
-    ) {
-      ...
+    @if (producto.cantidad_stock != null) {
+      Stock: {{ producto.cantidad_stock }}
+    } @else if (producto.stock) {
+      Cantidad pendiente
     } @else {
-      Stock
+      Sin stock
     }
   </button>
 
