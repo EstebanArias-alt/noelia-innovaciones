@@ -14,3 +14,7 @@ p { line-height: 1.5; } [role=alert] { color: #a32020; } strong { display: block
 fieldset.borrador { display: block; border: 0; padding: 0; margin: 0; }
 
 .boleta > button { margin: 8px 8px 0 0; }
+
+.pautas { margin: 20px 0; border: 1px solid #d9ccb5; padding: 14px; border-radius: 8px; }
+.pautas summary { cursor: pointer; font-weight: bold; }
+.pautas label { margin: 14px 0; }

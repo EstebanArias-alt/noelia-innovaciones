@@ -15,6 +15,7 @@
       <h2>{{ boleta.datos.numero }}</h2>
       <p>{{ boleta.datos.cliente }} · Fecha: {{ boleta.datos.fecha }}</p>
       <p>Guardada: {{ boleta.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+      @if (boleta.datos.estado || boleta.datos.vendedor) {<p>Estado: {{ boleta.datos.estado || 'Sin especificar' }} · Vendedor: {{ boleta.datos.vendedor || 'Sin especificar' }}</p>}
       <strong>{{ boleta.total | currency:'ARS':'symbol':'1.2-2' }}</strong>
       <div class="acciones">
         <button type="button" (click)="imprimir(boleta)">Abrir / Imprimir / PDF</button>

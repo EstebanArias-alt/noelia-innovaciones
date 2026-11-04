@@ -39,4 +39,22 @@ await role('authenticated',admin);
 await db.query('update public.boletas set compartible=false where id=$1',[id]);
 await role('anon');assert.equal((await db.query('select public.ver_boleta_compartida($1) as b',[r.share_token])).rows[0].b,null);
 console.log('SQL OK: migración, admin/anon/otro usuario, guardado idempotente, inmutabilidad, validaciones, token y revocación.');
+await db.exec('reset role');
+await db.exec(fs.readFileSync(new URL('../supabase/migrations/20261104_boletas_entrega.sql', import.meta.url),'utf8'));
+await role('authenticated',admin);
+const anterior=(await db.query('select datos,total from public.boletas where id=$1',[id])).rows[0];
+assert.equal(Number(anterior.total),0.3); assert(!('pautas_entrega' in anterior.datos));
+const ampliada={...datos,numero:'B-2',flete:25.15,autorizacion:'AUT-42',estado:'Señado',vendedor:'Ana',
+  armar_domicilio:true,domicilio_cliente:'Domicilio de prueba',telefono_cliente:'123',
+  pautas_entrega:'Texto de entrega',pautas_armado:'Texto de armado',politicas_empresa:'Texto comercial'};
+const nueva=(await db.query('select public.guardar_boleta(gen_random_uuid(),$1) as b',[ampliada])).rows[0].b;
+assert.equal(Number(nueva.total),25.45); assert.equal(nueva.datos.armar_domicilio,true);
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...ampliada,flete:-1}]));
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...ampliada,flete:null}]));
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...ampliada,armar_domicilio:'sí'}]));
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...ampliada,pautas_entrega:'x'.repeat(8001)}]));
+await role('anon');
+const visible=(await db.query('select public.ver_boleta_compartida($1) as b',[nueva.share_token])).rows[0].b;
+assert.equal(visible.datos.politicas_empresa,'Texto comercial'); assert.equal(Number(visible.total),25.45);
+console.log('SQL ampliación OK: flete, nuevos campos, pautas, enlace y boletas anteriores intactas.');
 await db.close();

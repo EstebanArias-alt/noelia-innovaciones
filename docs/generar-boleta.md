@@ -4,14 +4,18 @@
 
 1. Abrir el proyecto correcto en Supabase → SQL Editor → New query.
 2. Ejecutar **una sola vez** el contenido de `supabase/migrations/20261104_boletas.sql`, con el rol postgres. La migración es transaccional y crea la tabla, funciones y permisos de boletas. No modifica productos, stock, imágenes ni sus políticas. Si ya fue aplicada, no repetirla.
-3. Publicar esta rama en la web o probar con `npm install` y `npm start`.
-4. Entrar a `/admin`, guardar una boleta y abrir “Ver historial de boletas”.
+3. Ejecutar después `supabase/migrations/20261104_boletas_entrega.sql` para habilitar los campos de entrega, armado, pautas y flete. Si ya aplicaste el primer SQL, ejecutar solo este segundo archivo. No reescribe las boletas anteriores.
+4. Publicar esta rama en la web o probar con `npm install` y `npm start`.
+5. Entrar a `/admin`, guardar una boleta y abrir “Ver historial de boletas”.
 
 La migración usa el mismo UID de administrador que `admin-auth.guard.ts`. Si cambia el administrador, hay que actualizar tanto el guard como las políticas y la función `guardar_boleta` mediante una nueva migración. La clave pública de Supabase sigue siendo la existente: no agregar claves de servicio al frontend.
 
 ## Uso
 
 - Completar comercio, cliente, referencia, fecha, medio de pago y al menos un producto. Dirección, contacto, identificación comercial/CUIT, documento y observaciones son opcionales.
+- Completar autorización, estado, vendedor y elegir explícitamente Sí o No en “Armar en domicilio”. El estado es informativo y queda fijado al guardar, como el resto del comprobante. Domicilio y teléfono del cliente son opcionales.
+- Indicar flete en ARS: 0 significa sin cargo; cualquier importe positivo se suma al total. El PDF separa subtotal de productos, flete y total.
+- Las pautas de entrega, armado y políticas de la empresa están precargadas con el texto solicitado, con correcciones de ortografía y puntuación. Son editables antes de guardar (un renglón por pauta) y se copian a esa boleta. Se imprimen en una hoja de condiciones separada, identificada con referencia y cliente. Las boletas anteriores que no tenían pautas no reciben este texto automáticamente.
 - Copiar precio de contado o tarjeta y ajustar descripción/cantidad/precio para este comprobante. Los precios “consultar” deben completarse. Se admiten hasta 100 líneas.
 - “Guardar boleta” registra una copia permanente en Supabase. Las boletas guardadas no se editan; los cambios posteriores en productos no alteran sus datos ni precios. Un doble clic o reintento tras un error no duplica el registro. Ante un resultado incierto, el borrador queda bloqueado para reintentar con el mismo contenido; “Nueva boleta” permite descartarlo con confirmación.
 - “Abrir boleta para imprimir / PDF” funciona también antes de guardar, como vista previa. Una impresión del borrador no crea historial.
@@ -40,6 +44,7 @@ Logo provisto en `public/logo/logo-boleta-noelia.png`, detalles dorados, fecha e
 | Archivo | Responsabilidad |
 | --- | --- |
 | `components/generar-boleta/*` | Borrador, validación, guardado, reintentos y acceso a compartir. |
+| `models/boleta-pautas.ts` | Textos iniciales de entrega, armado y políticas para las boletas nuevas. |
 | `models/boleta.ts` | Tipos y cálculo/validación de importes y fechas. |
 | `services/boletas.service.ts` | Guardar, listar, consultar enlace y revocar en Supabase. |
 | `services/boleta-impresion.ts` | Diseño único compartido entre admin, historial y cliente. |
@@ -49,6 +54,7 @@ Logo provisto en `public/logo/logo-boleta-noelia.png`, detalles dorados, fecha e
 | `pages/admin/admin.component.*` | Generador y acceso al historial en el panel existente. |
 | `app.routes.ts` | Ruta protegida del historial y ruta compartida con carga diferida. |
 | `supabase/migrations/20261104_boletas.sql` | Tabla, validaciones, total, RLS y funciones. |
+| `supabase/migrations/20261104_boletas_entrega.sql` | Amplía validaciones y total con flete; conserva compatibilidad con los registros anteriores. |
 | `scripts/test-boletas*.mjs`, archivos `*.spec.ts` | Pruebas de lógica y PostgreSQL efímero; no usan datos reales. |
 
 Las rutas de aplicación de la tabla son relativas a `src/app/`.
@@ -62,3 +68,5 @@ La suite usa Jasmine en Node para lógica y PGlite (PostgreSQL efímero) para la
 Prueba de aceptación tras activar: guardar, recargar historial, buscar por cliente/referencia, abrir PDF, compartir enlace de la web publicada en ventana sin sesión y verificar que solo se ve esa boleta. Cambiar un producto y confirmar que el comprobante conserva el precio. Desactivar enlace y recargarlo para comprobar que deja de estar disponible. Revisar impresión A4 de varias páginas. Sin migración o sin conexión el admin debe mostrar un error conservando el borrador.
 
 Verificación realizada en este cambio: compilación, tipado y ocho pruebas de lógica correctas; migración y pruebas de permisos correctas en PostgreSQL efímero. Flujo de navegador probado con respuestas de Supabase simuladas: guardado, historial, enlace sin sesión, logo, PDF A4 de una página y enlace revocado. La base de Supabase real sigue pendiente de activar mediante la migración.
+
+Ampliación de entrega/armado: diez pruebas de lógica correctas, pruebas PostgreSQL de campos nuevos, flete, límites y conservación de datos históricos correctas. Flujo de navegador con datos simulados y PDF A4 revisado en dos hojas (comprobante y pautas). Ambas migraciones siguen pendientes de aplicar en el proyecto real si no se ejecutaron manualmente.

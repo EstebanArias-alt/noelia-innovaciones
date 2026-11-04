@@ -1,3 +1,4 @@
+import { PAUTAS_ENTREGA, PAUTAS_ARMADO, POLITICAS_EMPRESA } from '../../models/boleta-pautas';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
@@ -33,6 +34,16 @@ export class GenerarBoletaComponent {
   numero = '';
   fecha = '';
   pago = 'Efectivo';
+  domicilioCliente = '';
+  telefonoCliente = '';
+  autorizacion = '';
+  estado = 'Pendiente';
+  vendedor = '';
+  flete: number | null = 0;
+  armarDomicilio: boolean | null = null;
+  pautasEntrega = PAUTAS_ENTREGA;
+  pautasArmado = PAUTAS_ARMADO;
+  politicasEmpresa = POLITICAS_EMPRESA;
   observaciones = '';
   seleccionado = '';
   tipoPrecio = 'contado';
@@ -61,8 +72,10 @@ export class GenerarBoletaComponent {
     return subtotalBoleta(linea);
   }
 
+  get subtotalProductos(): number { return totalBoleta(this.lineas); }
+
   get total(): number {
-    return totalBoleta(this.lineas);
+    return totalBoleta(this.lineas, this.flete ?? 0);
   }
 
   private datos(): DatosBoleta {
@@ -71,13 +84,19 @@ export class GenerarBoletaComponent {
       identificacion: this.identificacion, cliente: this.cliente, documento: this.documento,
       numero: this.numero, fecha: this.fecha, pago: this.pago,
       observaciones: this.observaciones,
+      domicilio_cliente: this.domicilioCliente, telefono_cliente: this.telefonoCliente,
+      autorizacion: this.autorizacion, estado: this.estado, vendedor: this.vendedor,
+      flete: this.flete == null ? NaN : Math.round(this.flete * 100) / 100,
+      armar_domicilio: this.armarDomicilio ?? undefined,
+      pautas_entrega: this.pautasEntrega, pautas_armado: this.pautasArmado,
+      politicas_empresa: this.politicasEmpresa,
       lineas: this.lineas.map(l => ({ ...l, precio: l.precio == null ? null : Math.round(l.precio * 100) / 100 }))
     };
   }
 
   private validar(): boolean {
-    if (!validarBoleta(this.datos())) {
-      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero (hasta dos decimales).';
+    if (this.armarDomicilio === null || !validarBoleta(this.datos())) {
+      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero. Revisá el flete (0 si es sin cargo) y elegí si se arma en domicilio.';
       return false;
     }
     this.error = '';
@@ -104,6 +123,8 @@ export class GenerarBoletaComponent {
         !window.confirm('¿Descartar este borrador y comenzar una nueva boleta?')) return;
     this.guardada = null; this.pendiente = null; this.idBorrador = crypto.randomUUID();
     this.cliente = ''; this.documento = ''; this.numero = ''; this.fecha = '';
+    this.domicilioCliente = ''; this.telefonoCliente = ''; this.autorizacion = '';
+    this.estado = 'Pendiente'; this.pago = 'Efectivo'; this.flete = 0; this.armarDomicilio = null;
     this.observaciones = ''; this.lineas = []; this.error = ''; this.seleccionado = '';
     this.abrir();
   }

@@ -7,6 +7,14 @@ export function htmlBoleta(datos: DatosBoleta): string {
     const moneda = (valor: number) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(valor);
     const texto = (valor: string) => escapar(valor).replace(/\n/g, '<br>');
     const logo = escapar(new URL('logo/logo-boleta-noelia.png', document.baseURI).href);
+    const pautas = (titulo: string, contenido?: string) => {
+      const items = (contenido ?? '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      return items.length ? `<section class="grupo-pautas"><h3>${titulo}</h3><ul>${items.map(item => `<li>${escapar(item)}</li>`).join('')}</ul></section>` : '';
+    };
+    const condiciones = pautas('PAUTAS DE ENTREGAS', datos.pautas_entrega) +
+      pautas('PAUTAS DE ARMADO A DOMICILIO', datos.pautas_armado) +
+      pautas('POLÍTICAS DE LA EMPRESA', datos.politicas_empresa);
+    const casilla = (activa: boolean) => `<span class="casilla">${activa ? 'X' : '&nbsp;'}</span>`;
     return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow, noarchive"><meta name="referrer" content="no-referrer"><title>Boleta ${escapar(datos.numero)}</title><style>
       @page { size: A4; margin: 12mm; }
       * { box-sizing: border-box; }
@@ -39,6 +47,19 @@ export function htmlBoleta(datos: DatosBoleta): string {
       .importe { width: 22%; text-align: right; font-variant-numeric: tabular-nums; }
       .vacia td { height: 32px; }
       thead { display: table-header-group; } tr { break-inside: avoid; }
+      .operacion { width: 100%; border-collapse: collapse; margin: 16px 0; table-layout: fixed; }
+      .operacion td { border: 1px solid #8b703d; width: 50%; padding: 9px; vertical-align: top; overflow-wrap: anywhere; }
+      .operacion .etiqueta { display: block; font-size: 9px; text-transform: uppercase; margin-bottom: 5px; color: #655d50; }
+      .casilla { display: inline-block; width: 12px; height: 12px; border: 1px solid #8b703d; font-size: 10px; text-align: center; line-height: 10px; margin-right: 4px; }
+      .desglose { margin: 8px 0 8px auto; width: 55%; display: flex; justify-content: space-between; gap: 12px; }
+      .condiciones { margin-top: 40px; border-top: 3px solid #b18b45; padding-top: 18px; }
+      .condiciones h2 { font-size: 17px; margin: 0 0 8px; }
+      .condiciones .referencia-pautas { font-size: 10px; line-height: 1.6; margin-bottom: 18px; }
+      .grupo-pautas h3 { font-size: 12px; background: #f4efe5; border-left: 3px solid #b18b45; padding: 8px; margin: 16px 0 8px; }
+      .grupo-pautas ul { padding-left: 19px; margin: 0; }
+      .grupo-pautas li { font-size: 11px; line-height: 1.65; margin-bottom: 10px; overflow-wrap: anywhere; }
+      .grupo-pautas li, .grupo-pautas h3 { break-inside: avoid; }
+      .grupo-pautas h3 { break-after: avoid; }
       .cierre { margin-top: 14px; break-inside: avoid; }
       .total { margin-left: auto; width: 55%; border: 2px solid #8b703d; padding: 14px; text-align: right; background: #f4efe5; }
       .total span { font-size: 11px; letter-spacing: 1px; margin-right: 12px; }
@@ -50,11 +71,11 @@ export function htmlBoleta(datos: DatosBoleta): string {
       footer { margin-top: 24px; border-top: 1px solid #d9ccb5; padding-top: 12px; text-align: center; font-size: 9px; line-height: 1.7; }
       .gracias { font-size: 12px; color: #806027; margin-bottom: 5px; }
       p { overflow-wrap: anywhere; } .datos-comercio,.cliente { overflow-wrap: anywhere; }
-      @media print { .acciones { display: none; } body { background: white; } .papel { margin: 0; max-width: none; padding: 7mm 1mm 0; border-top-width: 4px; } * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+      @media print { .condiciones { break-before: page; margin-top: 0; padding-top: 16px; } .acciones { display: none; } body { background: white; } .papel { margin: 0; max-width: none; padding: 7mm 1mm 0; border-top-width: 4px; } * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
       @media screen and (max-width: 600px) { body { min-width: 680px; } }
       </style></head><body><div class="acciones"><button id="imprimir" onclick="window.print()">Imprimir / Guardar como PDF</button></div>
       <main class="papel"><header class="cabecera"><div class="marca">
-      <img class="logo" src="${logo}" alt="Noelia Innovaciones" onerror="datos.hidden=true">
+      <img class="logo" src="${logo}" alt="Noelia Innovaciones" onerror="this.hidden=true">
       <h1>${escapar(datos.comercio)}</h1>
       <div class="datos-comercio">${[datos.direccion, datos.contacto, datos.identificacion].filter(v => v.trim()).map(texto).join('<br>')}</div>
       </div><div class="folio"><div class="recuadro"><div class="tipo">BOLETA DE VENTA</div>
@@ -63,14 +84,25 @@ export function htmlBoleta(datos: DatosBoleta): string {
       </div></header>
       <section class="cliente"><div><span class="etiqueta">Señor/a:</span>${escapar(datos.cliente)}</div>
       ${datos.documento.trim() ? `<div><span class="etiqueta">Documento:</span>${escapar(datos.documento)}</div>` : ''}
-      <div><span class="etiqueta">Medio de pago:</span>${escapar(datos.pago)}</div></section>
+      ${datos.domicilio_cliente?.trim() ? `<div><span class="etiqueta">Domicilio:</span>${escapar(datos.domicilio_cliente)}</div>` : ''}
+      ${datos.telefono_cliente?.trim() ? `<div><span class="etiqueta">Teléfono:</span>${escapar(datos.telefono_cliente)}</div>` : ''}
+      <div><span class="etiqueta">Modo de pago:</span>${escapar(datos.pago)}</div></section>
+      ${[datos.autorizacion, datos.estado, datos.vendedor, datos.armar_domicilio].some(v => v !== undefined && v !== '') ? `
+      <table class="operacion" aria-label="Datos de la operación"><tbody>
+        <tr><td><span class="etiqueta">Número de autorización</span>${escapar(datos.autorizacion || '—')}</td><td><span class="etiqueta">Estado</span>${escapar(datos.estado || '—')}</td></tr>
+        <tr><td><span class="etiqueta">Vendedor</span>${escapar(datos.vendedor || '—')}</td><td><span class="etiqueta">Armar en domicilio</span>${datos.armar_domicilio === undefined ? 'Sin especificar' : `${casilla(datos.armar_domicilio)} SÍ &nbsp;&nbsp; ${casilla(!datos.armar_domicilio)} NO`}</td></tr>
+      </tbody></table>` : ''}
       <table class="detalle"><thead><tr><th class="cantidad">Cant.</th><th class="descripcion">Descripción</th><th class="importe">P. unitario</th><th class="importe">Importe</th></tr></thead><tbody>
       ${datos.lineas.map(l => `<tr><td class="cantidad">${l.cantidad}</td><td>${escapar(l.nombre)}</td><td class="importe">${moneda(l.precio!)}</td><td class="importe">${moneda(subtotalBoleta(l))}</td></tr>`).join('')}
       ${Array.from({ length: Math.max(0, 6 - datos.lineas.length) }, () => '<tr class="vacia" aria-hidden="true"><td></td><td></td><td></td><td></td></tr>').join('')}
-      </tbody></table><section class="cierre"><div class="total"><span>TOTAL ARS</span><strong>${moneda(totalBoleta(datos.lineas))}</strong></div>
+      </tbody></table><section class="cierre">
+      ${datos.flete !== undefined ? `<div class="desglose"><span>Subtotal productos</span><strong>${moneda(totalBoleta(datos.lineas))}</strong></div><div class="desglose"><span>Flete</span><strong>${datos.flete === 0 ? 'SIN CARGO' : moneda(datos.flete)}</strong></div>` : ''}
+      <div class="total"><span>TOTAL ARS</span><strong>${moneda(totalBoleta(datos.lineas, datos.flete))}</strong></div>
       ${datos.observaciones.trim() ? `<p class="observaciones"><span class="etiqueta">Observaciones:</span>${texto(datos.observaciones)}</p>` : ''}
       <div class="firmas"><div class="firma"><span>Firma / Aclaración</span></div><div class="firma"><span>Recibí conforme</span></div></div>
-      <footer><div class="gracias">Gracias por elegirnos</div>Comprobante interno. No válido como factura fiscal.<br>Importes expresados en pesos argentinos.</footer></section></main></body></html>`;
+      <footer><div class="gracias">Gracias por elegirnos</div>Comprobante interno. No válido como factura fiscal.<br>Importes expresados en pesos argentinos.</footer></section>
+      ${condiciones ? `<section class="condiciones"><h2>Condiciones de entrega y armado</h2><div class="referencia-pautas"><strong>${escapar(datos.comercio)}</strong><br>Boleta N.º ${escapar(datos.numero)} · Fecha: ${escapar(datos.fecha.split('-').reverse().join('/'))}<br>Cliente: ${escapar(datos.cliente)}</div>${condiciones}<div class="firmas"><div class="firma"><span>Firma / Aclaración del cliente</span></div><div class="firma"><span>Fecha</span></div></div></section>` : ''}
+      </main></body></html>`;
 }
 
 export function imprimirBoleta(datos: DatosBoleta): boolean {

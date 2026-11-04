@@ -57,7 +57,7 @@ describe('Guardado de boletas', () => {
     let terminar!: (valor: unknown) => void;
     const guardar = jasmine.createSpy('guardar').and.callFake(() => new Promise(resolve => { terminar = resolve; }));
     const component = new GenerarBoletaComponent({ guardar } as unknown as BoletasService);
-    component.abrir(); component.cliente = 'Ana';
+    component.abrir(); component.cliente = 'Ana'; component.armarDomicilio = false;
     component.lineas = [{ nombre: 'Mesa', cantidad: 1, precio: 100 }];
     const intento = component.guardar();
     await component.guardar();
@@ -75,5 +75,26 @@ describe('Guardado de boletas', () => {
     expect(component.guardada?.datos.cliente).toBe('Ana');
     await component.guardar();
     expect(guardar).toHaveBeenCalledTimes(2);
+  });
+});
+
+
+describe('Impresión con entrega y armado', () => {
+  it('muestra flete, estado, autorización, vendedor, elección de armado y escapa las pautas', () => {
+    const datos = { comercio: 'Noelia', direccion: '', contacto: '', identificacion: '', cliente: 'Ana',
+      documento: '', numero: 'B1', fecha: '2026-11-04', pago: 'Tarjeta', observaciones: '',
+      lineas: [{ nombre: 'Mesa', cantidad: 1, precio: 100 }], flete: 25.15,
+      autorizacion: 'AUT-42', estado: 'Señado', vendedor: 'Vendedor Uno', armar_domicilio: false,
+      pautas_entrega: '<script>alert(1)</script>', pautas_armado: 'Armado', politicas_empresa: 'Política' };
+    const html = htmlBoleta(datos);
+    expect(html).toContain('AUT-42'); expect(html).toContain('Señado'); expect(html).toContain('Vendedor Uno');
+    expect(html).toContain('125,15'); expect(html).toContain('25,15');
+    expect(html).toContain('Armar en domicilio'); expect(html).toContain('class="condiciones"');
+    expect(html).toContain('&lt;script&gt;'); expect(html).not.toContain('<script>');
+    const antigua = htmlBoleta({ ...datos, flete: undefined, armar_domicilio: undefined,
+      autorizacion: undefined, estado: undefined, vendedor: undefined, pautas_entrega: undefined,
+      pautas_armado: undefined, politicas_empresa: undefined });
+    expect(antigua).not.toContain('class="condiciones"');
+    expect(antigua).not.toContain('aria-label="Datos de la operación"');
   });
 });

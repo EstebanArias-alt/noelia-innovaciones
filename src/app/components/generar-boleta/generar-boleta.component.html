@@ -14,8 +14,18 @@
       <label>Referencia interna *<input [(ngModel)]="numero" maxlength="100"></label>
       <label>Fecha *<input type="date" [(ngModel)]="fecha"></label>
       <label>Cliente *<input [(ngModel)]="cliente" maxlength="150"></label>
+      <label>Domicilio del cliente<input [(ngModel)]="domicilioCliente" maxlength="250"></label>
+      <label>Teléfono del cliente<input [(ngModel)]="telefonoCliente" maxlength="80"></label>
       <label>Documento (opcional)<input [(ngModel)]="documento" maxlength="50"></label>
-      <label>Medio de pago<select [(ngModel)]="pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></label>
+      <label>Modo de pago<select [(ngModel)]="pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></label>
+    </fieldset>
+    <fieldset><legend>Pago, entrega y armado</legend>
+      <label>Número de autorización<input [(ngModel)]="autorizacion" maxlength="100"></label>
+      <label>Estado<select [(ngModel)]="estado"><option>Pendiente</option><option>Señado</option><option>Pagado</option><option>Cancelado</option></select></label>
+      <label>Flete (ARS) *<input type="number" min="0" max="1000000000" step="0.01" [(ngModel)]="flete"></label>
+      <label>Vendedor<input [(ngModel)]="vendedor" maxlength="150"></label>
+      <label>Armar en domicilio *<select [(ngModel)]="armarDomicilio"><option [ngValue]="null">Seleccionar</option><option [ngValue]="true">Sí</option><option [ngValue]="false">No</option></select></label>
+      <p>El flete se suma al total. Ingresá 0 cuando sea sin cargo. El estado es informativo y queda registrado al guardar la boleta.</p>
     </fieldset>
     <fieldset><legend>Productos</legend>
       <label>Producto<select [(ngModel)]="seleccionado"><option value="">Seleccionar producto</option>@for (p of productos; track p.id) {<option [value]="p.id">{{ p.nombre }}</option>}</select></label>
@@ -32,8 +42,15 @@
         </div>
       }
     </fieldset>
+    <details class="pautas"><summary>Pautas de entrega, armado y políticas de la empresa</summary>
+      <p>Estos textos se incluyen en una hoja de condiciones junto a la boleta. Podés editarlos antes de guardar; cada renglón es una pauta.</p>
+      <label>Pautas de entregas<textarea rows="8" [(ngModel)]="pautasEntrega" maxlength="8000"></textarea></label>
+      <label>Pautas de armado a domicilio<textarea rows="8" [(ngModel)]="pautasArmado" maxlength="8000"></textarea></label>
+      <label>Políticas de la empresa<textarea rows="6" [(ngModel)]="politicasEmpresa" maxlength="8000"></textarea></label>
+    </details>
     <label>Observaciones<textarea [(ngModel)]="observaciones" maxlength="2000"></textarea></label>
     </fieldset>
+    <p>Productos: {{ subtotalProductos | currency:'ARS':'symbol':'1.2-2' }} · Flete: {{ (flete ?? 0) | currency:'ARS':'symbol':'1.2-2' }}</p>
     <strong>Total: {{ total | currency:'ARS':'symbol':'1.2-2' }}</strong>
     @if (error) {<p role="alert">{{ error }}</p>}
     <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Solo las boletas guardadas quedan en el historial; el borrador se pierde al salir del panel.</p>
