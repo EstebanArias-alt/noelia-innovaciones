@@ -2,7 +2,8 @@
 @if (abierto) {
   <section class="boleta" aria-label="Generar boleta">
     <header><h2>Generar boleta</h2><button type="button" (click)="abierto = false">Cerrar</button></header>
-    <p>Comprobante interno en pesos argentinos. No modifica productos ni descuenta stock. Conservá el PDF: no se guarda un historial.</p>
+    <p>Comprobante interno en pesos argentinos. No modifica productos ni descuenta stock. Guardá la boleta para conservarla en el historial y compartirla.</p>
+    <fieldset class="borrador" [disabled]="guardando || !!guardada || !!pendiente"><legend>Borrador</legend>
     <fieldset><legend>Datos del comercio</legend>
       <label>Nombre del comercio *<input [(ngModel)]="comercio" maxlength="150"></label>
       <label>Dirección<input [(ngModel)]="direccion" maxlength="250"></label>
@@ -32,9 +33,17 @@
       }
     </fieldset>
     <label>Observaciones<textarea [(ngModel)]="observaciones" maxlength="2000"></textarea></label>
+    </fieldset>
     <strong>Total: {{ total | currency:'ARS':'symbol':'1.2-2' }}</strong>
     @if (error) {<p role="alert">{{ error }}</p>}
-    <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Los datos se conservan mientras permanezcas en este panel.</p>
+    <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Solo las boletas guardadas quedan en el historial; el borrador se pierde al salir del panel.</p>
+    @if (guardada) {
+      <p role="status">Boleta guardada. Podés volver a abrirla desde el historial.</p>
+      <app-compartir-boleta [boleta]="guardada" />
+    } @else {
+      <button type="button" [disabled]="guardando" (click)="guardar()">{{ guardando ? 'Guardando…' : 'Guardar boleta' }}</button>
+    }
+    <button type="button" [disabled]="guardando" (click)="nueva()">Nueva boleta</button>
     <button type="button" (click)="imprimir()">Abrir boleta para imprimir / PDF</button>
   </section>
 }

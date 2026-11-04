@@ -10,3 +10,7 @@ input,select,textarea { font: inherit; padding: 10px; border: 1px solid #aaa; bo
 .linea label { flex-basis: 120px; }
 p { line-height: 1.5; } [role=alert] { color: #a32020; } strong { display: block; margin-top: 16px; }
 @media(max-width: 600px) { .boleta { padding: 12px; } .linea label { flex-basis: 100%; } }
+
+fieldset.borrador { display: block; border: 0; padding: 0; margin: 0; }
+
+.boleta > button { margin: 8px 8px 0 0; }

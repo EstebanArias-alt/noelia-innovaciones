@@ -1,9 +1,11 @@
+import { htmlBoleta } from '../../services/boleta-impresion';
 import { GenerarBoletaComponent } from './generar-boleta.component';
+import { BoletasService } from '../../services/boletas.service';
 import { Producto } from '../../models/producto';
 
 describe('GenerarBoletaComponent', () => {
   let component: GenerarBoletaComponent;
-  beforeEach(() => { component = new GenerarBoletaComponent(); });
+  beforeEach(() => { component = new GenerarBoletaComponent({} as BoletasService); });
 
   it('copia el precio elegido sin modificar el producto y deja consultar sin precio', () => {
     const producto = { id: 1, nombre: 'Sofá', precio: 100, precio_tarjeta: 120 } as Producto;
@@ -36,17 +38,42 @@ describe('GenerarBoletaComponent', () => {
   });
 
   it('escapa los datos del cliente en el documento imprimible', () => {
-    const escribir = jasmine.createSpy('write');
-    spyOn(window, 'open').and.returnValue({ document: { write: escribir, close() {} }, focus() {} } as unknown as Window);
     component.cliente = '<img src=x onerror=alert(1)>';
     component.numero = 'B-1'; component.fecha = '2026-11-04';
     component.lineas = [{ nombre: '<script>alert(1)</script>', cantidad: 1, precio: 10 }];
-    component.imprimir();
-    const html = escribir.calls.mostRecent().args[0] as string;
+    const html = htmlBoleta({ comercio: component.comercio, direccion: '', contacto: '', identificacion: '',
+      cliente: component.cliente, documento: '', numero: component.numero, fecha: component.fecha, pago: 'Efectivo',
+      observaciones: '', lineas: component.lineas });
     expect(html).toContain('&lt;img');
     expect(html).toContain('&lt;script&gt;');
     expect(html).not.toContain('<img src=x');
     expect(html).toContain('logo-boleta-noelia.png');
     expect(html).toContain('BOLETA DE VENTA');
+  });
+});
+
+describe('Guardado de boletas', () => {
+  it('reintenta con el mismo id y contenido sin duplicar y bloquea doble clic', async () => {
+    let terminar!: (valor: unknown) => void;
+    const guardar = jasmine.createSpy('guardar').and.callFake(() => new Promise(resolve => { terminar = resolve; }));
+    const component = new GenerarBoletaComponent({ guardar } as unknown as BoletasService);
+    component.abrir(); component.cliente = 'Ana';
+    component.lineas = [{ nombre: 'Mesa', cantidad: 1, precio: 100 }];
+    const intento = component.guardar();
+    await component.guardar();
+    expect(guardar).toHaveBeenCalledTimes(1);
+    terminar(Promise.reject(new Error('Sin conexión')));
+    await intento;
+    expect(component.guardada).toBeNull();
+    expect(component.pendiente?.cliente).toBe('Ana');
+    const primerId = guardar.calls.first().args[0];
+    const primerosDatos = guardar.calls.first().args[1];
+    guardar.and.resolveTo({ id: primerId, datos: primerosDatos, compartible: true, share_token: 'token' });
+    await component.guardar();
+    expect(guardar.calls.mostRecent().args[0]).toBe(primerId);
+    expect(guardar.calls.mostRecent().args[1]).toEqual(primerosDatos);
+    expect(component.guardada?.datos.cliente).toBe('Ana');
+    await component.guardar();
+    expect(guardar).toHaveBeenCalledTimes(2);
   });
 });

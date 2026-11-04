@@ -1,0 +1,42 @@
+// Base PostgreSQL efímera. No accede a Supabase ni a datos reales.
+import { PGlite } from '@electric-sql/pglite';
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const db = new PGlite();
+await db.exec(`create role anon; create role authenticated; create schema auth;
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+grant usage on schema auth to anon, authenticated; grant execute on function auth.uid() to anon, authenticated;`);
+await db.exec(fs.readFileSync(new URL('../supabase/migrations/20261104_boletas.sql', import.meta.url),'utf8'));
+const datos={comercio:'Noelia',direccion:'',contacto:'',identificacion:'',cliente:'Cliente A',documento:'',numero:'B-1',fecha:'2026-11-04',pago:'Efectivo',observaciones:'',lineas:[{nombre:'Sofá',cantidad:3,precio:0.1}]};
+const id='6fd0d7b3-aa64-4be4-aa48-a9676b5a21c5';
+const admin='5400f8da-6a41-4d50-b4b8-b3b9d249c81f';
+async function role(rol,uid=''){await db.exec(`reset role; set role ${rol};`);await db.query("select set_config('request.jwt.claim.sub', $1, false)",[uid]);}
+async function fails(f){let fail=false;try{await f()}catch{fail=true}assert(fail,'Operación debió ser rechazada');}
+await role('anon'); await fails(()=>db.query('select * from public.boletas'));
+await fails(()=>db.query('select public.guardar_boleta($1,$2)',[id,datos]));
+await role('authenticated','11111111-1111-4111-8111-111111111111');
+assert.equal((await db.query('select * from public.boletas')).rows.length,0);
+await fails(()=>db.query('select public.guardar_boleta($1,$2)',[id,datos]));
+await role('authenticated',admin);
+const r=(await db.query('select public.guardar_boleta($1,$2) as b',[id,datos])).rows[0].b;
+assert.equal(Number(r.total),0.3);assert(r.share_token);
+await db.query('select public.guardar_boleta($1,$2)',[id,datos]);
+assert.equal((await db.query('select * from public.boletas')).rows.length,1);
+await fails(()=>db.query('select public.guardar_boleta($1,$2)',[id,{...datos,cliente:'Otro'}]));
+await fails(()=>db.query('update public.boletas set datos=$1 where id=$2',[{...datos,cliente:'Otro'},id]));
+await fails(()=>db.query('update public.boletas set share_token=gen_random_uuid() where id=$1',[id]));
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...datos,fecha:'2026-02-31'}]));
+await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...datos,lineas:[{nombre:'A',cantidad:1,precio:null}]}]));
+await role('anon');
+const compartida=(await db.query('select public.ver_boleta_compartida($1) as b',[r.share_token])).rows[0].b;
+assert.equal(compartida.datos.cliente,'Cliente A');assert(!('share_token' in compartida));
+assert.equal((await db.query('select public.ver_boleta_compartida(gen_random_uuid()) as b')).rows[0].b,null);
+await role('authenticated','11111111-1111-4111-8111-111111111111');
+assert.equal((await db.query('select * from public.boletas')).rows.length,0);
+await db.query('update public.boletas set compartible=false where id=$1',[id]);
+await role('anon');assert((await db.query('select public.ver_boleta_compartida($1) as b',[r.share_token])).rows[0].b);
+await role('authenticated',admin);
+await db.query('update public.boletas set compartible=false where id=$1',[id]);
+await role('anon');assert.equal((await db.query('select public.ver_boleta_compartida($1) as b',[r.share_token])).rows[0].b,null);
+console.log('SQL OK: migración, admin/anon/otro usuario, guardado idempotente, inmutabilidad, validaciones, token y revocación.');
+await db.close();

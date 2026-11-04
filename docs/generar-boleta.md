@@ -1,35 +1,64 @@
-# Generar boleta
+# Boletas: generación, historial y compartir
 
-## Integración elegida
+## Activación
 
-El panel usa Angular 19 standalone, FormsModule y un listado obtenido con SupabaseService.getProductos(). El formulario de productos guarda primero el producto, termina la galería y vuelve a /admin. Se incorpora un componente standalone dentro de ese panel protegido por adminAuthGuard, reutilizando los productos cargados. No requiere dependencias ni migraciones y no interviene en guardar(), actualizarProducto(), crearProducto() ni guardarGaleriaProducto().
+1. Abrir el proyecto correcto en Supabase → SQL Editor → New query.
+2. Ejecutar **una sola vez** el contenido de `supabase/migrations/20261104_boletas.sql`, con el rol postgres. La migración es transaccional y crea la tabla, funciones y permisos de boletas. No modifica productos, stock, imágenes ni sus políticas. Si ya fue aplicada, no repetirla.
+3. Publicar esta rama en la web o probar con `npm install` y `npm start`.
+4. Entrar a `/admin`, guardar una boleta y abrir “Ver historial de boletas”.
+
+La migración usa el mismo UID de administrador que `admin-auth.guard.ts`. Si cambia el administrador, hay que actualizar tanto el guard como las políticas y la función `guardar_boleta` mediante una nueva migración. La clave pública de Supabase sigue siendo la existente: no agregar claves de servicio al frontend.
 
 ## Uso
 
-1. Entrar a /admin y pulsar Generar boleta.
-2. Completar comercio, cliente, referencia y fecha. Dirección, contacto, identificación comercial/CUIT y documento del cliente son opcionales.
-3. Seleccionar productos y copiar precio de contado o tarjeta. Completar los precios “consultar”; ajustar descripción, cantidad y precio para este comprobante. Elegir medio de pago y observaciones.
-4. Abrir la vista A4 y pulsar Imprimir / Guardar como PDF. En el diálogo del navegador elegir impresora o Guardar como PDF.
+- Completar comercio, cliente, referencia, fecha, medio de pago y al menos un producto. Dirección, contacto, identificación comercial/CUIT, documento y observaciones son opcionales.
+- Copiar precio de contado o tarjeta y ajustar descripción/cantidad/precio para este comprobante. Los precios “consultar” deben completarse. Se admiten hasta 100 líneas.
+- “Guardar boleta” registra una copia permanente en Supabase. Las boletas guardadas no se editan; los cambios posteriores en productos no alteran sus datos ni precios. Un doble clic o reintento tras un error no duplica el registro. Ante un resultado incierto, el borrador queda bloqueado para reintentar con el mismo contenido; “Nueva boleta” permite descartarlo con confirmación.
+- “Abrir boleta para imprimir / PDF” funciona también antes de guardar, como vista previa. Una impresión del borrador no crea historial.
+- Para otra venta, usar “Nueva boleta”. Los datos del comercio se conservan durante esa visita al panel; no se guardan como configuración global. Cada boleta guardada sí conserva sus propios datos comerciales.
 
-La referencia inicial es un UUID interno editable, no una numeración fiscal correlativa. Todos los importes son ARS. Los subtotales se redondean en centavos. Los textos se escapan antes de generar el HTML imprimible. El documento abierto conserva una copia de los datos al momento de generarlo.
+## Dónde se guardan
 
-Los datos comerciales son configurables en cada formulario; el nombre tiene valor inicial Noelia Innovaciones. El borrador permanece solamente mientras el componente esté montado. No se persisten datos de clientes, configuración ni historial; guardar el PDF antes de abandonar el panel. No se descuentan existencias ni se registran ventas. El comprobante indica “No válido como factura fiscal”.
+Tabla `public.boletas` en la misma base de Supabase del catálogo. Contiene un identificador UUID, fecha de creación, copia JSON de datos comerciales/cliente/líneas, referencia y cliente para búsqueda, total calculado en PostgreSQL y estado/token del enlace. No se almacena un PDF binario: la vista y el PDF se reconstruyen a partir de esa copia de datos.
+
+El historial `/admin/boletas` está protegido por el guard existente y por RLS en la base. Tiene búsqueda por cliente o referencia y paginación de 20 registros. Desde allí se vuelve a abrir, imprimir o guardar como PDF. El borrador sin guardar se pierde al salir del panel. No se registran ventas contables ni se descuenta stock. La referencia es interna y editable, no un correlativo fiscal. El comprobante indica “No válido como factura fiscal”.
+
+## WhatsApp y correo
+
+Después de guardar se puede copiar el enlace o abrir WhatsApp/correo con un mensaje preparado. El administrador elige el destinatario y confirma el envío en esa aplicación. No hay envío automático ni PDF adjunto automático.
+
+El cliente abre `/boleta/<token-aleatorio>` sin iniciar sesión y puede ver su boleta y abrir la impresión para elegir “Guardar como PDF”. El enlace debe provenir de la web publicada: un enlace localhost no sirve fuera de la PC. El navegador debe permitir ventanas emergentes y tener una aplicación de correo configurada si se usa `mailto:`.
+
+Cualquiera que tenga el enlace puede ver los datos de esa boleta. El historial permite desactivarlo permanentemente; no borra la boleta ni los archivos ya descargados, ni cierra vistas que ya estaban abiertas. No se habilita acceso anónimo a la tabla: una función con búsqueda exacta por UUID devuelve únicamente la boleta compartida y activa. No existe listado público. La página lleva noindex y no-referrer y no carga servicios externos para mostrar el comprobante.
+
+## Diseño
+
+Logo provisto en `public/logo/logo-boleta-noelia.png`, detalles dorados, fecha en casilleros, tabla enmarcada de cantidad/descripción/precio/importe, seis filas mínimas, total y espacios de firma. Diseño A4 con encabezados de tabla repetibles. Todos los textos se escapan antes de generar el HTML. La vista embebida del enlace está aislada en un iframe sin scripts. La impresión se abre como un documento HTML completo para que el logo cargue correctamente.
 
 ## Archivos
 
-| Archivo | Cambio |
+| Archivo | Responsabilidad |
 | --- | --- |
-| src/app/pages/admin/admin.component.ts | Importa el componente standalone. |
-| src/app/pages/admin/admin.component.html | Muestra el generador al terminar la carga de productos. |
-| src/app/components/generar-boleta/generar-boleta.component.ts | Borrador, selección y copia de precios, validación, cálculo e impresión aislada. |
-| src/app/components/generar-boleta/generar-boleta.component.html | Campos editables y acciones. |
-| src/app/components/generar-boleta/generar-boleta.component.css | Formulario adaptable a móviles. |
-| src/app/components/generar-boleta/generar-boleta.component.spec.ts | Casos de precios ausentes, cantidades, redondeo, independencia del producto y escape de HTML. |
+| `components/generar-boleta/*` | Borrador, validación, guardado, reintentos y acceso a compartir. |
+| `models/boleta.ts` | Tipos y cálculo/validación de importes y fechas. |
+| `services/boletas.service.ts` | Guardar, listar, consultar enlace y revocar en Supabase. |
+| `services/boleta-impresion.ts` | Diseño único compartido entre admin, historial y cliente. |
+| `components/compartir-boleta/*` | Copiar enlace, WhatsApp y correo con texto codificado. |
+| `pages/admin-boletas/*` | Historial protegido, búsqueda, paginación y revocación. |
+| `pages/boleta-publica/*` | Vista por token, PDF desde impresión y estados de error. |
+| `pages/admin/admin.component.*` | Generador y acceso al historial en el panel existente. |
+| `app.routes.ts` | Ruta protegida del historial y ruta compartida con carga diferida. |
+| `supabase/migrations/20261104_boletas.sql` | Tabla, validaciones, total, RLS y funciones. |
+| `scripts/test-boletas*.mjs`, archivos `*.spec.ts` | Pruebas de lógica y PostgreSQL efímero; no usan datos reales. |
 
-## Verificación manual
+Las rutas de aplicación de la tabla son relativas a `src/app/`.
 
-Probar producto antiguo sin precio de tarjeta, precio a consultar, varias líneas y cantidades, caracteres HTML en cliente y observaciones, quitar filas y ventanas emergentes bloqueadas. Verificar impresión A4 de varias páginas y guardado PDF. Volver a editar y guardar un producto: el flujo previo permanece intacto.
+## Validación
 
-## Diseño del comprobante
+`npm run build`, `npx tsc --project tsconfig.spec.json --noEmit` y `npm run test:boletas`.
 
-Diseño inspirado en una boleta comercial: logo provisto en public/logo/logo-boleta-noelia.png, bordes y acentos dorados, encabezado con referencia y fecha en casilleros, datos del cliente, grilla de cantidad/descripción/precio/importe, seis filas mínimas, total destacado y espacios de firma. La referencia sigue siendo interna; no se inventan datos fiscales ni se marca el comprobante como pagado. El logo usa una URL absoluta basada en document.baseURI para cargar desde la pestaña de impresión.
+La suite usa Jasmine en Node para lógica y PGlite (PostgreSQL efímero) para la migración y seguridad: anon sin acceso directo, usuario ajeno sin historial/guardado, admin autorizado, guardado idempotente, datos inmutables, validaciones, token y revocación. No conecta con Supabase real. La única dependencia nueva es PGlite de desarrollo, no se incluye en el sitio publicado.
+
+Prueba de aceptación tras activar: guardar, recargar historial, buscar por cliente/referencia, abrir PDF, compartir enlace de la web publicada en ventana sin sesión y verificar que solo se ve esa boleta. Cambiar un producto y confirmar que el comprobante conserva el precio. Desactivar enlace y recargarlo para comprobar que deja de estar disponible. Revisar impresión A4 de varias páginas. Sin migración o sin conexión el admin debe mostrar un error conservando el borrador.
+
+Verificación realizada en este cambio: compilación, tipado y ocho pruebas de lógica correctas; migración y pruebas de permisos correctas en PostgreSQL efímero. Flujo de navegador probado con respuestas de Supabase simuladas: guardado, historial, enlace sin sesión, logo, PDF A4 de una página y enlace revocado. La base de Supabase real sigue pendiente de activar mediante la migración.

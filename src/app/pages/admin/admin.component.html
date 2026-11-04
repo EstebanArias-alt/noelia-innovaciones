@@ -35,6 +35,7 @@
   </header>
 
   @if (!cargando) {
+    <a routerLink="/admin/boletas">Ver historial de boletas</a>
     <app-generar-boleta [productos]="productos" />
   }
 
