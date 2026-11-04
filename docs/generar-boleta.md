@@ -29,3 +29,7 @@ Los datos comerciales son configurables en cada formulario; el nombre tiene valo
 ## Verificación manual
 
 Probar producto antiguo sin precio de tarjeta, precio a consultar, varias líneas y cantidades, caracteres HTML en cliente y observaciones, quitar filas y ventanas emergentes bloqueadas. Verificar impresión A4 de varias páginas y guardado PDF. Volver a editar y guardar un producto: el flujo previo permanece intacto.
+
+## Diseño del comprobante
+
+Diseño inspirado en una boleta comercial: logo provisto en public/logo/logo-boleta-noelia.png, bordes y acentos dorados, encabezado con referencia y fecha en casilleros, datos del cliente, grilla de cantidad/descripción/precio/importe, seis filas mínimas, total destacado y espacios de firma. La referencia sigue siendo interna; no se inventan datos fiscales ni se marca el comprobante como pagado. El logo usa una URL absoluta basada en document.baseURI para cargar desde la pestaña de impresión.

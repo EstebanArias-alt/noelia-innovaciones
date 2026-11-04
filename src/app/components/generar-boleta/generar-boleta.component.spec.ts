@@ -45,6 +45,8 @@ describe('GenerarBoletaComponent', () => {
     const html = escribir.calls.mostRecent().args[0] as string;
     expect(html).toContain('&lt;img');
     expect(html).toContain('&lt;script&gt;');
-    expect(html).not.toContain('<img');
+    expect(html).not.toContain('<img src=x');
+    expect(html).toContain('logo-boleta-noelia.png');
+    expect(html).toContain('BOLETA DE VENTA');
   });
 });
