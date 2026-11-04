@@ -106,7 +106,7 @@ export function htmlBoleta(datos: DatosBoleta): string {
       <main class="papel${condiciones ? ' con-pautas' : ''}"><header class="cabecera"><div class="marca">
       <img class="logo" src="${logo}" alt="Noelia Innovaciones" onerror="this.hidden=true">
       <h1>${escapar(datos.comercio)}</h1>
-      <div class="datos-comercio">${[datos.direccion, datos.contacto, datos.identificacion].filter(v => v.trim()).map(texto).join('<br>')}</div>
+      <div class="datos-comercio">${[datos.identificacion, datos.direccion, datos.contacto].filter(v => v.trim()).map(texto).join('<br>')}</div>
       </div><div class="folio"><div class="recuadro"><div class="tipo">BOLETA DE VENTA</div>
       <div class="referencia">COMPROBANTE INTERNO<strong>N.º ${escapar(datos.numero)}</strong></div></div>
       <table class="fecha" aria-label="Fecha"><tr><th>DÍA</th><th>MES</th><th>AÑO</th></tr><tr>${datos.fecha.split('-').reverse().map(parte => `<td>${escapar(parte)}</td>`).join('')}</tr></table>

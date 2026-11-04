@@ -26,9 +26,9 @@ export class GenerarBoletaComponent {
   private idBorrador = crypto.randomUUID();
   abierto = false;
   comercio = 'Noelia Innovaciones';
-  direccion = '';
-  contacto = '';
-  identificacion = '';
+  direccion = 'Gorriti N.º 670\n4600 San Salvador de Jujuy · Provincia de Jujuy';
+  contacto = 'Cel.: 388-4584857 / 388-4044893';
+  identificacion = 'Fábrica de sillones\nDe Tomás Lamas\nResponsable monotributo';
   cliente = '';
   documento = '';
   numero = '';

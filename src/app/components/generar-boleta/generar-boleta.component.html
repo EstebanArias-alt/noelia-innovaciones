@@ -6,9 +6,9 @@
     <fieldset class="borrador" [disabled]="guardando || !!guardada || !!pendiente"><legend>Borrador</legend>
     <fieldset><legend>Datos del comercio</legend>
       <label>Nombre del comercio *<input [(ngModel)]="comercio" maxlength="150"></label>
-      <label>Dirección<input [(ngModel)]="direccion" maxlength="250"></label>
+      <label>Dirección del comercio<textarea rows="2" [(ngModel)]="direccion" maxlength="250"></textarea></label>
       <label>Teléfono / contacto<input [(ngModel)]="contacto" maxlength="150"></label>
-      <label>Identificación comercial / CUIT<input [(ngModel)]="identificacion" maxlength="100"></label>
+      <label>Actividad, titular y condición fiscal<textarea rows="3" [(ngModel)]="identificacion" maxlength="100"></textarea></label>
     </fieldset>
     <fieldset><legend>Comprobante y cliente</legend>
       <label>Referencia interna *<input [(ngModel)]="numero" maxlength="100"></label>
