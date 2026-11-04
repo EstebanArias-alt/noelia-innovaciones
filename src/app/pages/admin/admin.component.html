@@ -34,6 +34,10 @@
 
   </header>
 
+  @if (!cargando) {
+    <app-generar-boleta [productos]="productos" />
+  }
+
   <!-- ========================= -->
 <!-- ESTADÍSTICAS -->
 <!-- ========================= -->

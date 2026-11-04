@@ -1,3 +1,4 @@
+import { GenerarBoletaComponent } from '../../components/generar-boleta/generar-boleta.component';
 import {
   Component,
   OnInit
@@ -16,6 +17,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
 
   imports: [
+    GenerarBoletaComponent,
     DecimalPipe,
      FormsModule
   ],

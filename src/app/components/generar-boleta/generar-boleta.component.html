@@ -1,0 +1,40 @@
+<button type="button" (click)="abrir()">Generar boleta</button>
+@if (abierto) {
+  <section class="boleta" aria-label="Generar boleta">
+    <header><h2>Generar boleta</h2><button type="button" (click)="abierto = false">Cerrar</button></header>
+    <p>Comprobante interno en pesos argentinos. No modifica productos ni descuenta stock. Conservá el PDF: no se guarda un historial.</p>
+    <fieldset><legend>Datos del comercio</legend>
+      <label>Nombre del comercio *<input [(ngModel)]="comercio" maxlength="150"></label>
+      <label>Dirección<input [(ngModel)]="direccion" maxlength="250"></label>
+      <label>Teléfono / contacto<input [(ngModel)]="contacto" maxlength="150"></label>
+      <label>Identificación comercial / CUIT<input [(ngModel)]="identificacion" maxlength="100"></label>
+    </fieldset>
+    <fieldset><legend>Comprobante y cliente</legend>
+      <label>Referencia interna *<input [(ngModel)]="numero" maxlength="100"></label>
+      <label>Fecha *<input type="date" [(ngModel)]="fecha"></label>
+      <label>Cliente *<input [(ngModel)]="cliente" maxlength="150"></label>
+      <label>Documento (opcional)<input [(ngModel)]="documento" maxlength="50"></label>
+      <label>Medio de pago<select [(ngModel)]="pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></label>
+    </fieldset>
+    <fieldset><legend>Productos</legend>
+      <label>Producto<select [(ngModel)]="seleccionado"><option value="">Seleccionar producto</option>@for (p of productos; track p.id) {<option [value]="p.id">{{ p.nombre }}</option>}</select></label>
+      <label>Precio a copiar<select [(ngModel)]="tipoPrecio"><option value="contado">Contado</option><option value="tarjeta">Tarjeta</option></select></label>
+      <button type="button" [disabled]="!seleccionado" (click)="agregar()">Agregar producto</button>
+      <p>Si el precio es “consultar”, completalo antes de imprimir. El precio copiado puede editarse.</p>
+      @for (linea of lineas; track $index; let i = $index) {
+        <div class="linea">
+          <label>Descripción<input [(ngModel)]="linea.nombre" maxlength="200"></label>
+          <label>Cantidad<input type="number" min="1" max="1000000" step="1" [(ngModel)]="linea.cantidad"></label>
+          <label>Precio unitario<input type="number" min="0.01" max="1000000000" step="0.01" [(ngModel)]="linea.precio"></label>
+          <span>{{ subtotal(linea) | currency:'ARS':'symbol':'1.2-2' }}</span>
+          <button type="button" (click)="lineas.splice(i, 1)" [attr.aria-label]="'Quitar ' + linea.nombre">Quitar</button>
+        </div>
+      }
+    </fieldset>
+    <label>Observaciones<textarea [(ngModel)]="observaciones" maxlength="2000"></textarea></label>
+    <strong>Total: {{ total | currency:'ARS':'symbol':'1.2-2' }}</strong>
+    @if (error) {<p role="alert">{{ error }}</p>}
+    <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Los datos se conservan mientras permanezcas en este panel.</p>
+    <button type="button" (click)="imprimir()">Abrir boleta para imprimir / PDF</button>
+  </section>
+}
