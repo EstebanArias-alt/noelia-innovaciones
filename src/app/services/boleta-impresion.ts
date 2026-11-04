@@ -52,7 +52,7 @@ export function htmlBoleta(datos: DatosBoleta): string {
       .operacion .etiqueta { display: block; font-size: 9px; text-transform: uppercase; margin-bottom: 5px; color: #655d50; }
       .casilla { display: inline-block; width: 12px; height: 12px; border: 1px solid #8b703d; font-size: 10px; text-align: center; line-height: 10px; margin-right: 4px; }
       .desglose { margin: 8px 0 8px auto; width: 55%; display: flex; justify-content: space-between; gap: 12px; }
-      .condiciones { margin-top: 40px; border-top: 3px solid #b18b45; padding-top: 18px; }
+      .condiciones { margin-top: 10px; border-top: 3px solid #b18b45; padding-top: 18px; }
       .condiciones h2 { font-size: 17px; margin: 0 0 8px; }
       .condiciones .referencia-pautas { font-size: 10px; line-height: 1.6; margin-bottom: 18px; }
       .grupo-pautas h3 { font-size: 12px; background: #f4efe5; border-left: 3px solid #b18b45; padding: 8px; margin: 16px 0 8px; }
@@ -71,10 +71,39 @@ export function htmlBoleta(datos: DatosBoleta): string {
       footer { margin-top: 24px; border-top: 1px solid #d9ccb5; padding-top: 12px; text-align: center; font-size: 9px; line-height: 1.7; }
       .gracias { font-size: 12px; color: #806027; margin-bottom: 5px; }
       p { overflow-wrap: anywhere; } .datos-comercio,.cliente { overflow-wrap: anywhere; }
-      @media print { .condiciones { break-before: page; margin-top: 0; padding-top: 16px; } .acciones { display: none; } body { background: white; } .papel { margin: 0; max-width: none; padding: 7mm 1mm 0; border-top-width: 4px; } * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+      @media print { .acciones { display: none; } body { background: white; } .papel { margin: 0; max-width: none; padding: 7mm 1mm 0; border-top-width: 4px; } * { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+      .con-pautas .cabecera { margin-bottom: 10px; }
+      .con-pautas .logo { width: 110px; height: 72px; margin-bottom: 4px; }
+      .con-pautas h1 { font-size: 13px; margin-bottom: 3px; }
+      .con-pautas .datos-comercio { font-size: 9px; line-height: 1.4; }
+      .con-pautas .tipo { font-size: 14px; padding: 8px; }
+      .con-pautas .referencia { padding: 7px; font-size: 10px; }
+      .con-pautas .fecha { margin-top: 6px; }
+      .con-pautas .fecha td,.con-pautas .fecha th { padding: 4px; }
+      .con-pautas .cliente { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px 12px; padding: 8px; margin-bottom: 10px; line-height: 1.5; font-size: 10px; }
+      .con-pautas .operacion { margin: 10px 0; font-size: 10px; }
+      .con-pautas .operacion td { padding: 6px; }
+      .con-pautas .operacion .etiqueta { display: inline; font-size: 8.5px; margin-bottom: 0; }
+      .con-pautas .detalle { font-size: 10px; }
+      .con-pautas .detalle th,.con-pautas .detalle td { padding: 6px; }
+      .con-pautas .vacia td { height: 20px; }
+      .con-pautas .cierre { margin-top: 8px; }
+      .con-pautas .desglose { margin-top: 3px; margin-bottom: 3px; font-size: 10px; }
+      .con-pautas .total { padding: 8px; }
+      .con-pautas .total strong { font-size: 17px; }
+      .con-pautas .observaciones { margin: 8px 0; font-size: 10px; line-height: 1.4; }
+      .con-pautas .condiciones { border-top-width: 1px; padding-top: 6px; break-inside: avoid; }
+      .con-pautas .condiciones h2 { font-size: 10px; margin: 0 0 4px; }
+      .con-pautas .grupo-pautas h3 { font-size: 8.5px; padding: 3px 5px; margin: 5px 0 3px; }
+      .con-pautas .grupo-pautas ul { padding-left: 13px; }
+      .con-pautas .grupo-pautas li { font-size: 8.5px; line-height: 1.35; margin-bottom: 3px; }
+      .con-pautas .firmas { margin-top: 20px; font-size: 9px; break-inside: avoid; }
+      .con-pautas .firma span { padding-top: 5px; }
+      .con-pautas footer { margin-top: 10px; padding-top: 6px; font-size: 8px; line-height: 1.4; }
+      .con-pautas .gracias { font-size: 10px; margin-bottom: 2px; }
       @media screen and (max-width: 600px) { body { min-width: 680px; } }
       </style></head><body><div class="acciones"><button id="imprimir" onclick="window.print()">Imprimir / Guardar como PDF</button></div>
-      <main class="papel"><header class="cabecera"><div class="marca">
+      <main class="papel${condiciones ? ' con-pautas' : ''}"><header class="cabecera"><div class="marca">
       <img class="logo" src="${logo}" alt="Noelia Innovaciones" onerror="this.hidden=true">
       <h1>${escapar(datos.comercio)}</h1>
       <div class="datos-comercio">${[datos.direccion, datos.contacto, datos.identificacion].filter(v => v.trim()).map(texto).join('<br>')}</div>
@@ -94,14 +123,15 @@ export function htmlBoleta(datos: DatosBoleta): string {
       </tbody></table>` : ''}
       <table class="detalle"><thead><tr><th class="cantidad">Cant.</th><th class="descripcion">Descripción</th><th class="importe">P. unitario</th><th class="importe">Importe</th></tr></thead><tbody>
       ${datos.lineas.map(l => `<tr><td class="cantidad">${l.cantidad}</td><td>${escapar(l.nombre)}</td><td class="importe">${moneda(l.precio!)}</td><td class="importe">${moneda(subtotalBoleta(l))}</td></tr>`).join('')}
-      ${Array.from({ length: Math.max(0, 6 - datos.lineas.length) }, () => '<tr class="vacia" aria-hidden="true"><td></td><td></td><td></td><td></td></tr>').join('')}
+      ${Array.from({ length: Math.max(0, (condiciones ? 4 : 6) - datos.lineas.length) }, () => '<tr class="vacia" aria-hidden="true"><td></td><td></td><td></td><td></td></tr>').join('')}
       </tbody></table><section class="cierre">
       ${datos.flete !== undefined ? `<div class="desglose"><span>Subtotal productos</span><strong>${moneda(totalBoleta(datos.lineas))}</strong></div><div class="desglose"><span>Flete</span><strong>${datos.flete === 0 ? 'SIN CARGO' : moneda(datos.flete)}</strong></div>` : ''}
       <div class="total"><span>TOTAL ARS</span><strong>${moneda(totalBoleta(datos.lineas, datos.flete))}</strong></div>
       ${datos.observaciones.trim() ? `<p class="observaciones"><span class="etiqueta">Observaciones:</span>${texto(datos.observaciones)}</p>` : ''}
+      </section>
+      ${condiciones ? `<section class="condiciones"><h2>Condiciones de entrega y armado</h2>${condiciones}</section>` : ''}
       <div class="firmas"><div class="firma"><span>Firma / Aclaración</span></div><div class="firma"><span>Recibí conforme</span></div></div>
-      <footer><div class="gracias">Gracias por elegirnos</div>Comprobante interno. No válido como factura fiscal.<br>Importes expresados en pesos argentinos.</footer></section>
-      ${condiciones ? `<section class="condiciones"><h2>Condiciones de entrega y armado</h2><div class="referencia-pautas"><strong>${escapar(datos.comercio)}</strong><br>Boleta N.º ${escapar(datos.numero)} · Fecha: ${escapar(datos.fecha.split('-').reverse().join('/'))}<br>Cliente: ${escapar(datos.cliente)}</div>${condiciones}<div class="firmas"><div class="firma"><span>Firma / Aclaración del cliente</span></div><div class="firma"><span>Fecha</span></div></div></section>` : ''}
+      <footer><div class="gracias">Gracias por elegirnos</div>Comprobante interno. No válido como factura fiscal.<br>Importes expresados en pesos argentinos.</footer>
       </main></body></html>`;
 }
 

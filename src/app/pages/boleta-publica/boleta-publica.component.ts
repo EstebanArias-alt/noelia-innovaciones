@@ -40,7 +40,7 @@ export class BoletaPublicaComponent implements OnInit, OnDestroy {
     try {
       this.boleta = await this.servicio.publica(this.route.snapshot.paramMap.get('token') ?? '');
       if (!this.boleta) { this.error = 'Esta boleta no está disponible o su enlace fue desactivado.'; return; }
-      this.altoVista = [this.boleta.datos.pautas_entrega, this.boleta.datos.pautas_armado, this.boleta.datos.politicas_empresa].some(v => v?.trim()) ? 2100 : 1100;
+      this.altoVista = 1250;
       // HTML propio con todos los datos escapados; iframe sin scripts ni acceso al sitio.
       this.vista = this.sanitizer.bypassSecurityTrustHtml(htmlBoleta(this.boleta.datos)
         .replace('<div class="acciones">', '<div class="acciones" style="display:none">'));
