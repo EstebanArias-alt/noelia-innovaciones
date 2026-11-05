@@ -76,3 +76,14 @@ Diseño compacto actualizado: sin salto obligatorio de página ni encabezado o f
 Verificado el diseño compacto en navegador con datos simulados: boleta con cliente, domicilio, teléfono, pago, autorización, estado, vendedor, armado, flete y todas las pautas predeterminadas en una sola hoja A4. PDF renderizado y revisado visualmente; compilación, tipado y diez pruebas de lógica correctas.
 
 Datos comerciales precargados desde el sector marcado en la foto: Fábrica de sillones, De Tomás Lamas, Responsable monotributo; Gorriti N.º 670, 4600 San Salvador de Jujuy, Provincia de Jujuy; Cel. 388-4584857 / 388-4044893. El logo de Noelia reemplaza el sector tachado. Estos datos siguen siendo editables y solo se copian a boletas nuevas; no cambian las ya guardadas. No se incorporan CUIT ni datos de la zona no marcada. No requiere SQL adicional.
+
+
+## Diseño aprobado (5 de noviembre)
+
+La impresión y el enlace público usan el mismo diseño: datos comerciales a la izquierda, logo completo al centro, folio a la derecha, tabla con diez renglones mínimos y pautas compactas al pie. Las descripciones largas o documentos extensos pueden continuar en otra hoja; no se recortan.
+
+Las boletas nuevas incluyen tipo de tarjeta, tiempo de entrega y seña. El saldo se calcula como total (productos + flete) menos seña. La seña no reduce el valor total de la venta. No puede ser negativa ni superar el total. Observaciones siempre tiene un espacio en el comprobante.
+
+Aplicar `supabase/migrations/20261105_boletas_diseno.sql` después de las migraciones de boletas anteriores para validar los nuevos campos también en la base. No cambia boletas guardadas ni permisos. Las antiguas conservan su estado bajo “Estado (registro anterior)” y no se les inventan importes de seña o saldo. Su contenido comercial se conserva.
+
+Validación: compilación Angular, 13 pruebas de lógica e impresión HTML y pruebas PostgreSQL de campos, límites, guardado y enlace público. La revisión final de impresión A4 en navegador queda pendiente en este entorno.

@@ -20,4 +20,14 @@ describe('Datos de boletas', () => {
     const lineas = [{ nombre: 'A', cantidad: 3, precio: 0.1 }, { nombre: 'B', cantidad: 1, precio: 0.2 }];
     expect(totalBoleta(lineas)).toBe(0.5); expect(lineas[0].precio).toBe(0.1);
   });
+  it('valida seña entre cero y total, manteniendo registros sin seña', () => {
+    expect(validarBoleta({ ...datos, sena: 0 })).toBeTrue();
+    expect(validarBoleta({ ...datos, sena: 100 })).toBeTrue();
+    expect(validarBoleta({ ...datos, sena: 101 })).toBeFalse();
+    expect(validarBoleta({ ...datos, sena: -1 })).toBeFalse();
+    expect(validarBoleta({ ...datos, sena: NaN })).toBeFalse();
+    expect(validarBoleta({ ...datos, sena: 0.001 })).toBeFalse();
+    expect(validarBoleta({ ...datos, tiempo_entrega: 'x'.repeat(201) })).toBeFalse();
+  });
+
 });

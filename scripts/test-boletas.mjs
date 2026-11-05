@@ -15,10 +15,11 @@ const carpeta = path.resolve('.angular/boletas-unit');
 await fs.mkdir(carpeta, { recursive: true });
 const tests = [
   'src/app/models/boleta.spec.ts',
+  'src/app/services/boleta-impresion.spec.ts',
   'src/app/components/generar-boleta/generar-boleta.component.spec.ts',
   'src/app/components/compartir-boleta/compartir-boleta.component.spec.ts'
 ];
-await build({ entryPoints: tests, outdir: carpeta, bundle: true, packages: 'external', platform: 'node', format: 'esm', outExtension: { '.js': '.mjs' } });
+await build({ entryPoints: tests, outdir: carpeta, outbase: 'src/app', bundle: true, packages: 'external', platform: 'node', format: 'esm', outExtension: { '.js': '.mjs' } });
 let fallos = 0; let cantidad = 0;
 env.addReporter({ specDone(r) { cantidad++; if (r.status === 'failed') { fallos++; console.error(r.fullName, r.failedExpectations.map(e => e.message)); } },
   jasmineDone(r) { rmSync(carpeta, { recursive: true, force: true }); console.log(`${cantidad} pruebas, ${fallos} fallos (${r.overallStatus}).`); process.exitCode = r.overallStatus === 'passed' ? 0 : 1; } });

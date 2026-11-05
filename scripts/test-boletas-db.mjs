@@ -57,4 +57,20 @@ await role('anon');
 const visible=(await db.query('select public.ver_boleta_compartida($1) as b',[nueva.share_token])).rows[0].b;
 assert.equal(visible.datos.politicas_empresa,'Texto comercial'); assert.equal(Number(visible.total),25.45);
 console.log('SQL ampliación OK: flete, nuevos campos, pautas, enlace y boletas anteriores intactas.');
+
+
+await db.exec('reset role');
+await db.exec(fs.readFileSync(new URL('../supabase/migrations/20261105_boletas_diseno.sql', import.meta.url),'utf8'));
+await role('authenticated', admin);
+const nuevos = {...datos, tipo_tarjeta:'Visa', tiempo_entrega:'10 días', sena:0.1};
+const guardadoNuevo = (await db.query('select public.guardar_boleta(gen_random_uuid(),$1) as b',[nuevos])).rows[0].b;
+assert.equal(guardadoNuevo.datos.sena, 0.1);
+await role('anon');
+assert.equal((await db.query('select public.ver_boleta_compartida($1) as b',[guardadoNuevo.share_token])).rows[0].b.datos.tipo_tarjeta,'Visa');
+await role('authenticated', admin);
+for (const valores of [{sena:-1},{sena:1},{sena:0.001},{tipo_tarjeta:'x'.repeat(81)},{tiempo_entrega:'x'.repeat(201)}]) {
+  await fails(()=>db.query('select public.guardar_boleta(gen_random_uuid(),$1)',[{...nuevos,...valores}]));
+}
+console.log('SQL diseño: campos nuevos, seña, enlace público y rechazo de 5 casos inválidos OK.');
+
 await db.close();

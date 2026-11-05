@@ -59,6 +59,8 @@ describe('Guardado de boletas', () => {
     const component = new GenerarBoletaComponent({ guardar } as unknown as BoletasService);
     component.abrir(); component.cliente = 'Ana'; component.armarDomicilio = false;
     component.lineas = [{ nombre: 'Mesa', cantidad: 1, precio: 100 }];
+    component.tipoTarjeta = 'Visa'; component.tiempoEntrega = '10 días'; component.sena = 25;
+    expect(component.saldo).toBe(75);
     const intento = component.guardar();
     await component.guardar();
     expect(guardar).toHaveBeenCalledTimes(1);
@@ -73,6 +75,9 @@ describe('Guardado de boletas', () => {
     expect(guardar.calls.mostRecent().args[0]).toBe(primerId);
     expect(guardar.calls.mostRecent().args[1]).toEqual(primerosDatos);
     expect(component.guardada?.datos.cliente).toBe('Ana');
+    expect(component.guardada?.datos.sena).toBe(25);
+    expect(component.guardada?.datos.tipo_tarjeta).toBe('Visa');
+    expect(component.guardada?.datos.tiempo_entrega).toBe('10 días');
     await component.guardar();
     expect(guardar).toHaveBeenCalledTimes(2);
   });
@@ -95,6 +100,6 @@ describe('Impresión con entrega y armado', () => {
       autorizacion: undefined, estado: undefined, vendedor: undefined, pautas_entrega: undefined,
       pautas_armado: undefined, politicas_empresa: undefined });
     expect(antigua).not.toContain('class="condiciones"');
-    expect(antigua).not.toContain('aria-label="Datos de la operación"');
+    expect(antigua).toContain('Sin especificar');
   });
 });

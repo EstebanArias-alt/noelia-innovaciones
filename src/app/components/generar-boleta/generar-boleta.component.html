@@ -21,11 +21,13 @@
     </fieldset>
     <fieldset><legend>Pago, entrega y armado</legend>
       <label>Número de autorización<input [(ngModel)]="autorizacion" maxlength="100"></label>
-      <label>Estado<select [(ngModel)]="estado"><option>Pendiente</option><option>Señado</option><option>Pagado</option><option>Cancelado</option></select></label>
+      <label>Tipo de tarjeta<input [(ngModel)]="tipoTarjeta" maxlength="80" placeholder="Visa, Mastercard, débito…"></label>
+      <label>Tiempo de entrega<input [(ngModel)]="tiempoEntrega" maxlength="200" placeholder="Ej.: 7 a 10 días hábiles"></label>
+      <label>Seña (ARS)<input type="number" min="0" [max]="total" step="0.01" [(ngModel)]="sena"></label>
       <label>Flete (ARS) *<input type="number" min="0" max="1000000000" step="0.01" [(ngModel)]="flete"></label>
       <label>Vendedor<input [(ngModel)]="vendedor" maxlength="150"></label>
       <label>Armar en domicilio *<select [(ngModel)]="armarDomicilio"><option [ngValue]="null">Seleccionar</option><option [ngValue]="true">Sí</option><option [ngValue]="false">No</option></select></label>
-      <p>El flete se suma al total. Ingresá 0 cuando sea sin cargo. El estado es informativo y queda registrado al guardar la boleta.</p>
+      <p>El flete se suma al total. Ingresá 0 cuando sea sin cargo. La seña se descuenta del total para calcular el saldo.</p>
     </fieldset>
     <fieldset><legend>Productos</legend>
       <label>Producto<select [(ngModel)]="seleccionado"><option value="">Seleccionar producto</option>@for (p of productos; track p.id) {<option [value]="p.id">{{ p.nombre }}</option>}</select></label>
@@ -52,6 +54,7 @@
     </fieldset>
     <p>Productos: {{ subtotalProductos | currency:'ARS':'symbol':'1.2-2' }} · Flete: {{ (flete ?? 0) | currency:'ARS':'symbol':'1.2-2' }}</p>
     <strong>Total: {{ total | currency:'ARS':'symbol':'1.2-2' }}</strong>
+    <p>Seña: {{ (sena ?? 0) | currency:'ARS':'symbol':'1.2-2' }} · Saldo: {{ saldo | currency:'ARS':'symbol':'1.2-2' }}</p>
     @if (error) {<p role="alert">{{ error }}</p>}
     <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Solo las boletas guardadas quedan en el historial; el borrador se pierde al salir del panel.</p>
     @if (guardada) {

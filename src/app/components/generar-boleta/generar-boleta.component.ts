@@ -26,9 +26,9 @@ export class GenerarBoletaComponent {
   private idBorrador = crypto.randomUUID();
   abierto = false;
   comercio = 'Noelia Innovaciones';
-  direccion = 'Gorriti N.º 670\n4600 San Salvador de Jujuy · Provincia de Jujuy';
+  direccion = 'Juana Manuela Gorriti N.º 670\n4600 San Salvador de Jujuy · Provincia de Jujuy';
   contacto = 'Cel.: 388-4584857 / 388-4044893';
-  identificacion = 'Fábrica de sillones\nDe Tomás Lamas\nResponsable monotributo';
+  identificacion = 'Responsable monotributo';
   cliente = '';
   documento = '';
   numero = '';
@@ -38,6 +38,9 @@ export class GenerarBoletaComponent {
   telefonoCliente = '';
   autorizacion = '';
   estado = 'Pendiente';
+  tipoTarjeta = '';
+  tiempoEntrega = '';
+  sena: number | null = 0;
   vendedor = '';
   flete: number | null = 0;
   armarDomicilio: boolean | null = null;
@@ -78,6 +81,8 @@ export class GenerarBoletaComponent {
     return totalBoleta(this.lineas, this.flete ?? 0);
   }
 
+  get saldo(): number { return Math.round((this.total - (this.sena ?? 0)) * 100) / 100; }
+
   private datos(): DatosBoleta {
     return {
       comercio: this.comercio, direccion: this.direccion, contacto: this.contacto,
@@ -85,7 +90,8 @@ export class GenerarBoletaComponent {
       numero: this.numero, fecha: this.fecha, pago: this.pago,
       observaciones: this.observaciones,
       domicilio_cliente: this.domicilioCliente, telefono_cliente: this.telefonoCliente,
-      autorizacion: this.autorizacion, estado: this.estado, vendedor: this.vendedor,
+      autorizacion: this.autorizacion, tipo_tarjeta: this.tipoTarjeta, tiempo_entrega: this.tiempoEntrega,
+      sena: this.sena == null ? NaN : Math.round(this.sena * 100) / 100, vendedor: this.vendedor,
       flete: this.flete == null ? NaN : Math.round(this.flete * 100) / 100,
       armar_domicilio: this.armarDomicilio ?? undefined,
       pautas_entrega: this.pautasEntrega, pautas_armado: this.pautasArmado,
@@ -96,7 +102,7 @@ export class GenerarBoletaComponent {
 
   private validar(): boolean {
     if (this.armarDomicilio === null || !validarBoleta(this.datos())) {
-      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero. Revisá el flete (0 si es sin cargo) y elegí si se arma en domicilio.';
+      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero. Revisá el flete (0 si es sin cargo) y elegí si se arma en domicilio. La seña debe estar entre 0 y el total.';
       return false;
     }
     this.error = '';
@@ -124,6 +130,7 @@ export class GenerarBoletaComponent {
     this.guardada = null; this.pendiente = null; this.idBorrador = crypto.randomUUID();
     this.cliente = ''; this.documento = ''; this.numero = ''; this.fecha = '';
     this.domicilioCliente = ''; this.telefonoCliente = ''; this.autorizacion = '';
+    this.tipoTarjeta = ''; this.tiempoEntrega = ''; this.sena = 0;
     this.estado = 'Pendiente'; this.pago = 'Efectivo'; this.flete = 0; this.armarDomicilio = null;
     this.observaciones = ''; this.lineas = []; this.error = ''; this.seleccionado = '';
     this.abrir();

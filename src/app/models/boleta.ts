@@ -6,6 +6,7 @@ export interface DatosBoleta {
   // Opcionales para seguir leyendo las boletas anteriores sin alterar su contenido.
   domicilio_cliente?: string; telefono_cliente?: string;
   autorizacion?: string; estado?: string; vendedor?: string;
+  tipo_tarjeta?: string; tiempo_entrega?: string; sena?: number;
   flete?: number; armar_domicilio?: boolean;
   pautas_entrega?: string; pautas_armado?: string; politicas_empresa?: string;
 }
@@ -28,7 +29,7 @@ export function validarBoleta(datos: DatosBoleta): boolean {
   ];
   const opcionales: [keyof DatosBoleta, number][] = [
     ['domicilio_cliente', 250], ['telefono_cliente', 80], ['autorizacion', 100],
-    ['estado', 50], ['vendedor', 150], ['pautas_entrega', 8000],
+    ['tipo_tarjeta', 80], ['tiempo_entrega', 200], ['estado', 50], ['vendedor', 150], ['pautas_entrega', 8000],
     ['pautas_armado', 8000], ['politicas_empresa', 8000]
   ];
   return limites.every(([campo, limite]) => typeof datos[campo] === 'string' && (datos[campo] as string).length <= limite) &&
@@ -36,6 +37,8 @@ export function validarBoleta(datos: DatosBoleta): boolean {
       (typeof datos[campo] === 'string' && (datos[campo] as string).length <= limite)) &&
     (datos.armar_domicilio === undefined || typeof datos.armar_domicilio === 'boolean') &&
     (datos.flete === undefined || (Number.isFinite(datos.flete) && datos.flete >= 0 && datos.flete <= 1000000000)) &&
+    (datos.sena === undefined || (Number.isFinite(datos.sena) && datos.sena >= 0 &&
+      Math.round(datos.sena * 100) / 100 === datos.sena && datos.sena <= totalBoleta(datos.lineas, datos.flete))) &&
     !!datos.comercio.trim() && !!datos.cliente.trim() && !!datos.numero.trim() &&
     /^\d{4}-\d{2}-\d{2}$/.test(datos.fecha) && !Number.isNaN(fecha.getTime()) &&
     fecha.toISOString().slice(0, 10) === datos.fecha &&
