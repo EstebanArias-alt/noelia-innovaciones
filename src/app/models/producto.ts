@@ -1,3 +1,5 @@
+export interface StockColor { color: string; cantidad: number | null; }
+
 export interface CaracteristicaProducto {
   nombre: string;
   valor: string;
@@ -46,6 +48,7 @@ export interface Producto {
   material?: string;
   caracteristicas?: CaracteristicaProducto[] | null;
 
+  stock_colores?: StockColor[] | null;
   stock?: boolean;
   // null indica que un producto anterior todavía no fue contado.
   cantidad_stock?: number | null;

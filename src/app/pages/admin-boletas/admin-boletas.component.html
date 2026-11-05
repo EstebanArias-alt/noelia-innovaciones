@@ -1,0 +1,35 @@
+<main>
+  <a routerLink="/admin">← Volver al panel / Generar boleta</a>
+  <h1>Historial de boletas</h1>
+  <p>Las boletas guardadas conservan sus datos y precios originales. Podés abrirlas para imprimir o guardar como PDF.</p>
+  <form (ngSubmit)="cargar(0)">
+    <label>Buscar por<select name="campo" [(ngModel)]="campo"><option value="cliente">Cliente</option><option value="referencia">Referencia</option></select></label>
+    <label>Búsqueda<input name="busqueda" [(ngModel)]="busqueda" maxlength="150"></label>
+    <button [disabled]="cargando">Buscar / Actualizar</button>
+  </form>
+  @if (error) {<p role="alert">{{ error }}</p>}
+  @if (cargando) {<p role="status">Cargando boletas…</p>}
+  @if (!cargando && !error && !boletas.length) {<p>No hay boletas para mostrar.</p>}
+  @for (boleta of boletas; track boleta.id) {
+    <article>
+      <h2>{{ boleta.datos.numero }}</h2>
+      <p>{{ boleta.datos.cliente }} · Fecha: {{ boleta.datos.fecha }}</p>
+      <p>Guardada: {{ boleta.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+      @if (boleta.datos.estado || boleta.datos.vendedor) {<p>Estado: {{ boleta.datos.estado || 'Sin especificar' }} · Vendedor: {{ boleta.datos.vendedor || 'Sin especificar' }}</p>}
+      <strong>{{ boleta.total | currency:'ARS':'symbol':'1.2-2' }}</strong>
+      <div class="acciones">
+        <button type="button" (click)="imprimir(boleta)">Abrir / Imprimir / PDF</button>
+        @if (boleta.compartible) {
+          <button type="button" (click)="compartiendo = compartiendo?.id === boleta.id ? null : boleta">Compartir</button>
+          <button type="button" [disabled]="!!revocando" (click)="revocar(boleta)">{{ revocando === boleta.id ? 'Desactivando…' : 'Desactivar enlace' }}</button>
+        } @else {<span>Enlace desactivado</span>}
+      </div>
+      @if (compartiendo?.id === boleta.id) {<app-compartir-boleta [boleta]="boleta" />}
+    </article>
+  }
+  <nav aria-label="Páginas del historial">
+    <button type="button" [disabled]="cargando || pagina === 0" (click)="cargar(pagina - 1)">Anterior</button>
+    <span>Página {{ pagina + 1 }}</span>
+    <button type="button" [disabled]="cargando || boletas.length < 20" (click)="cargar(pagina + 1)">Siguiente</button>
+  </nav>
+</main>

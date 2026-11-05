@@ -32,10 +32,15 @@
 
         <div class="imagen-principal">
 
+          @if (imagenSeleccionada) {
           <img
             [src]="imagenSeleccionada"
             [alt]="producto.nombre + (colorDeImagen ? ' · ' + colorDeImagen : '')"
           >
+
+          } @else {
+            <p>Sin foto para {{ colorSeleccionado }}.</p>
+          }
 
           @if (producto.oferta) {
 
@@ -69,7 +74,7 @@
           </div>
         }
         <p class="leyenda-galeria" aria-live="polite">
-          {{ colorDeImagen || 'Fotos del producto' }} · {{ galeriaVisible.length }} {{ galeriaVisible.length === 1 ? 'foto' : 'fotos' }}
+          {{ colorSeleccionado || colorDeImagen || 'Fotos del producto' }} · {{ galeriaVisible.length }} {{ galeriaVisible.length === 1 ? 'foto' : 'fotos' }}
         </p>
       </div>
 
@@ -96,14 +101,17 @@
         }
 
 
-        @if (coloresConFoto.length > 0) {
+        @if (coloresSeleccionables.length > 0) {
           <div class="colores">
-            <h3>Elegí el color <span>{{ colorDeImagen }}</span></h3>
+            <h3>Elegí el color <span>{{ colorSeleccionado }}</span></h3>
             <div class="colores-list" role="group" aria-label="Elegir color del producto">
-              @for (color of coloresConFoto; track color) {
+              @for (color of coloresSeleccionables; track color) {
                 <button type="button" [class.elegido]="colorSeleccionado === color"
                   [attr.aria-pressed]="colorSeleccionado === color" (click)="seleccionarColor(color)">
                   {{ color }}
+                  @if (stockDelColor(color) !== null) {
+                    <span> · {{ stockDelColor(color) === 0 ? 'Agotado' : stockDelColor(color) + ' disponibles' }}</span>
+                  }
                 </button>
               }
               <button type="button" class="todas-fotos" [class.elegido]="!colorSeleccionado"
@@ -203,9 +211,17 @@
         <div class="separator"></div>
 
 
-        <div class="stock">
+        <div class="stock" aria-live="polite">
+          @if (colorSeleccionado && producto.stock_colores?.length && cantidadSeleccionada === null) {
+            <span class="sin-stock">Consultar disponibilidad de {{ colorSeleccionado }}</span>
+          } @else if (cantidadSeleccionada !== null) {
+            <span [class.disponible]="disponibleSeleccionado" [class.sin-stock]="!disponibleSeleccionado">
+              {{ colorSeleccionado || 'Stock total' }}: {{ cantidadSeleccionada }} {{ cantidadSeleccionada === 1 ? 'unidad disponible' : 'unidades disponibles' }}
+              @if (cantidadSeleccionada === 0) { · Agotado }
+            </span>
+          } @else {
 
-          @if (producto.stock) {
+          @if (disponibleSeleccionado) {
 
             <span class="disponible">
               ● Producto disponible
@@ -219,16 +235,17 @@
 
           }
 
+          }
         </div>
 
 
      <a
   class="whatsapp"
-  [class.whatsapp-sin-stock]="!producto.stock"
+  [class.whatsapp-sin-stock]="!disponibleSeleccionado"
   [href]="whatsappUrl"
   target="_blank" rel="noopener noreferrer"
 >
-  @if (producto.stock) {
+  @if (disponibleSeleccionado) {
     Consultar por WhatsApp
   } @else {
     Consultar disponibilidad

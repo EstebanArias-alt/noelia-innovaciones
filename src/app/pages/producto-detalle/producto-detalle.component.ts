@@ -171,6 +171,28 @@ export class ProductoDetalleComponent
     return [...colores.values()];
   }
 
+  get coloresSeleccionables(): string[] {
+    const colores = new Map<string, string>();
+    for (const color of [...this.coloresConFoto, ...(this.producto?.stock_colores ?? []).map(fila => fila.color)]) {
+      if (color.trim()) colores.set(this.claveColor(color), color.trim());
+    }
+    return [...colores.values()];
+  }
+
+  stockDelColor(color: string): number | null {
+    const cantidad = this.producto?.stock_colores?.find(fila => this.claveColor(fila.color) === this.claveColor(color))?.cantidad;
+    return typeof cantidad === 'number' && Number.isInteger(cantidad) && cantidad >= 0 ? cantidad : null;
+  }
+
+  get cantidadSeleccionada(): number | null {
+    return this.colorSeleccionado ? this.stockDelColor(this.colorSeleccionado) : (this.producto?.cantidad_stock ?? null);
+  }
+
+  get disponibleSeleccionado(): boolean {
+    if (this.cantidadSeleccionada !== null) return this.cantidadSeleccionada > 0;
+    return this.colorSeleccionado && this.producto?.stock_colores?.length ? false : !!this.producto?.stock;
+  }
+
   get galeriaVisible(): ProductoImagen[] {
     return this.colorSeleccionado
       ? this.galeria.filter(imagen => this.claveColor(this.nombreColor(imagen.color)) === this.claveColor(this.colorSeleccionado))
@@ -180,7 +202,7 @@ export class ProductoDetalleComponent
   get coloresSinFoto(): string[] {
     const colores = this.producto?.colores;
     const lista = Array.isArray(colores) ? colores : (colores ?? '').split(',');
-    const conFoto = new Set(this.coloresConFoto.map(color => this.claveColor(color)));
+    const conFoto = new Set(this.coloresSeleccionables.map(color => this.claveColor(color)));
     return [...new Set(lista.map(color => color.trim()).filter(Boolean))]
       .filter(color => !conFoto.has(this.claveColor(color)));
   }
@@ -195,9 +217,10 @@ export class ProductoDetalleComponent
       return;
     }
     const imagen = this.galeria.find(item => this.claveColor(this.nombreColor(item.color)) === this.claveColor(color));
-    if (!imagen) return;
-    this.colorSeleccionado = this.coloresConFoto.find(item => this.claveColor(item) === this.claveColor(color)) ?? '';
-    this.imagenSeleccionada = imagen.url;
+    const elegido = this.coloresSeleccionables.find(item => this.claveColor(item) === this.claveColor(color));
+    if (!elegido) return;
+    this.colorSeleccionado = elegido;
+    this.imagenSeleccionada = imagen?.url ?? '';
   }
 
   seleccionarImagen(imagen: string): void {
@@ -277,14 +300,15 @@ export class ProductoDetalleComponent
     const precio = `Contado: ${precioContado}\nCon tarjeta: ${precioTarjeta}` +
       (this.producto.cuotas ? `\nCuotas con tarjeta: ${this.producto.cuotas}` : '');
 
-    const colorConsulta = this.colorDeImagen ? `🎨 Color: ${this.colorDeImagen}\n` : '';
+    const color = this.colorSeleccionado || this.colorDeImagen;
+    const colorConsulta = color ? `🎨 Color: ${color}\n` : '';
 
     const enlace =
       `${window.location.origin}/producto/${this.producto.slug}`;
 
 
     const mensaje =
-      this.producto.stock
+      this.disponibleSeleccionado
 
         ? (
             `Hola Noelia Innovaciones 👋\n\n` +

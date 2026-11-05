@@ -1,0 +1,66 @@
+<button type="button" (click)="abrir()">Generar boleta</button>
+@if (abierto) {
+  <section class="boleta" aria-label="Generar boleta">
+    <header><h2>Generar boleta</h2><button type="button" (click)="abierto = false">Cerrar</button></header>
+    <p>Comprobante interno en pesos argentinos. No modifica productos ni descuenta stock. Guardá la boleta para conservarla en el historial y compartirla.</p>
+    <fieldset class="borrador" [disabled]="guardando || !!guardada || !!pendiente"><legend>Borrador</legend>
+    <fieldset><legend>Datos del comercio</legend>
+      <label>Nombre del comercio *<input [(ngModel)]="comercio" maxlength="150"></label>
+      <label>Dirección del comercio<textarea rows="2" [(ngModel)]="direccion" maxlength="250"></textarea></label>
+      <label>Teléfono / contacto<input [(ngModel)]="contacto" maxlength="150"></label>
+      <label>Actividad, titular y condición fiscal<textarea rows="3" [(ngModel)]="identificacion" maxlength="100"></textarea></label>
+    </fieldset>
+    <fieldset><legend>Comprobante y cliente</legend>
+      <label>Referencia interna *<input [(ngModel)]="numero" maxlength="100"></label>
+      <label>Fecha *<input type="date" [(ngModel)]="fecha"></label>
+      <label>Cliente *<input [(ngModel)]="cliente" maxlength="150"></label>
+      <label>Domicilio del cliente<input [(ngModel)]="domicilioCliente" maxlength="250"></label>
+      <label>Teléfono del cliente<input [(ngModel)]="telefonoCliente" maxlength="80"></label>
+      <label>Documento (opcional)<input [(ngModel)]="documento" maxlength="50"></label>
+      <label>Modo de pago<select [(ngModel)]="pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></label>
+    </fieldset>
+    <fieldset><legend>Pago, entrega y armado</legend>
+      <label>Número de autorización<input [(ngModel)]="autorizacion" maxlength="100"></label>
+      <label>Estado<select [(ngModel)]="estado"><option>Pendiente</option><option>Señado</option><option>Pagado</option><option>Cancelado</option></select></label>
+      <label>Flete (ARS) *<input type="number" min="0" max="1000000000" step="0.01" [(ngModel)]="flete"></label>
+      <label>Vendedor<input [(ngModel)]="vendedor" maxlength="150"></label>
+      <label>Armar en domicilio *<select [(ngModel)]="armarDomicilio"><option [ngValue]="null">Seleccionar</option><option [ngValue]="true">Sí</option><option [ngValue]="false">No</option></select></label>
+      <p>El flete se suma al total. Ingresá 0 cuando sea sin cargo. El estado es informativo y queda registrado al guardar la boleta.</p>
+    </fieldset>
+    <fieldset><legend>Productos</legend>
+      <label>Producto<select [(ngModel)]="seleccionado"><option value="">Seleccionar producto</option>@for (p of productos; track p.id) {<option [value]="p.id">{{ p.nombre }}</option>}</select></label>
+      <label>Precio a copiar<select [(ngModel)]="tipoPrecio"><option value="contado">Contado</option><option value="tarjeta">Tarjeta</option></select></label>
+      <button type="button" [disabled]="!seleccionado" (click)="agregar()">Agregar producto</button>
+      <p>Si el precio es “consultar”, completalo antes de imprimir. El precio copiado puede editarse.</p>
+      @for (linea of lineas; track $index; let i = $index) {
+        <div class="linea">
+          <label>Descripción<input [(ngModel)]="linea.nombre" maxlength="200"></label>
+          <label>Cantidad<input type="number" min="1" max="1000000" step="1" [(ngModel)]="linea.cantidad"></label>
+          <label>Precio unitario<input type="number" min="0.01" max="1000000000" step="0.01" [(ngModel)]="linea.precio"></label>
+          <span>{{ subtotal(linea) | currency:'ARS':'symbol':'1.2-2' }}</span>
+          <button type="button" (click)="lineas.splice(i, 1)" [attr.aria-label]="'Quitar ' + linea.nombre">Quitar</button>
+        </div>
+      }
+    </fieldset>
+    <details class="pautas"><summary>Pautas de entrega, armado y políticas de la empresa</summary>
+      <p>Estos textos se incluyen al pie de la boleta, en letra pequeña. Podés editarlos antes de guardar; cada renglón es una pauta.</p>
+      <label>Pautas de entregas<textarea rows="8" [(ngModel)]="pautasEntrega" maxlength="8000"></textarea></label>
+      <label>Pautas de armado a domicilio<textarea rows="8" [(ngModel)]="pautasArmado" maxlength="8000"></textarea></label>
+      <label>Políticas de la empresa<textarea rows="6" [(ngModel)]="politicasEmpresa" maxlength="8000"></textarea></label>
+    </details>
+    <label>Observaciones<textarea [(ngModel)]="observaciones" maxlength="2000"></textarea></label>
+    </fieldset>
+    <p>Productos: {{ subtotalProductos | currency:'ARS':'symbol':'1.2-2' }} · Flete: {{ (flete ?? 0) | currency:'ARS':'symbol':'1.2-2' }}</p>
+    <strong>Total: {{ total | currency:'ARS':'symbol':'1.2-2' }}</strong>
+    @if (error) {<p role="alert">{{ error }}</p>}
+    <p>La vista imprimible se abre en otra pestaña. Allí podés imprimir o elegir “Guardar como PDF”. Solo las boletas guardadas quedan en el historial; el borrador se pierde al salir del panel.</p>
+    @if (guardada) {
+      <p role="status">Boleta guardada. Podés volver a abrirla desde el historial.</p>
+      <app-compartir-boleta [boleta]="guardada" />
+    } @else {
+      <button type="button" [disabled]="guardando" (click)="guardar()">{{ guardando ? 'Guardando…' : 'Guardar boleta' }}</button>
+    }
+    <button type="button" [disabled]="guardando" (click)="nueva()">Nueva boleta</button>
+    <button type="button" (click)="imprimir()">Abrir boleta para imprimir / PDF</button>
+  </section>
+}

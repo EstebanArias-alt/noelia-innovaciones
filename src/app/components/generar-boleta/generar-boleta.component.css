@@ -1,0 +1,20 @@
+:host { display: block; margin: 20px 0; }
+button { background: #314b3b; color: white; padding: 11px 16px; border: 0; border-radius: 8px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.boleta { background: #fff; border: 1px solid #ddd; border-radius: 12px; padding: 24px; color: #222; margin-top: 16px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+fieldset { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin: 16px 0; display: flex; flex-wrap: wrap; gap: 12px; }
+label { display: flex; flex-direction: column; gap: 6px; flex: 1 1 180px; }
+input,select,textarea { font: inherit; padding: 10px; border: 1px solid #aaa; border-radius: 6px; min-width: 0; width: 100%; box-sizing: border-box; }
+.linea { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; width: 100%; border-top: 1px solid #ddd; padding-top: 12px; }
+.linea label { flex-basis: 120px; }
+p { line-height: 1.5; } [role=alert] { color: #a32020; } strong { display: block; margin-top: 16px; }
+@media(max-width: 600px) { .boleta { padding: 12px; } .linea label { flex-basis: 100%; } }
+
+fieldset.borrador { display: block; border: 0; padding: 0; margin: 0; }
+
+.boleta > button { margin: 8px 8px 0 0; }
+
+.pautas { margin: 20px 0; border: 1px solid #d9ccb5; padding: 14px; border-radius: 8px; }
+.pautas summary { cursor: pointer; font-weight: bold; }
+.pautas label { margin: 14px 0; }

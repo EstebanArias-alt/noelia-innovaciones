@@ -1,9 +1,10 @@
+import { GenerarBoletaComponent } from '../../components/generar-boleta/generar-boleta.component';
 import {
   Component,
   OnInit
 } from '@angular/core';
 
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 
 import { Producto } from '../../models/producto';
@@ -16,6 +17,8 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
 
   imports: [
+    GenerarBoletaComponent,
+    RouterLink,
     DecimalPipe,
      FormsModule
   ],

@@ -1,4 +1,5 @@
 import {
+  StockColor,
   ProductoImagen,
   CaracteristicaProducto
 } from '../models/producto';
@@ -183,6 +184,7 @@ export class SupabaseService {
       colores: string;
       stock: boolean;
       cantidad_stock: number;
+      stock_colores?: StockColor[] | null;
       oferta: boolean;
       nuevo: boolean;
       destacado: boolean;
@@ -237,6 +239,7 @@ export class SupabaseService {
       colores: string;
       stock: boolean;
       cantidad_stock: number;
+      stock_colores?: StockColor[] | null;
       oferta: boolean;
       nuevo: boolean;
       destacado: boolean;

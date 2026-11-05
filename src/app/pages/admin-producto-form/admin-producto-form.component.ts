@@ -14,6 +14,7 @@ import {
 } from '@angular/router';
 
 import {
+  StockColor,
   ProductoImagen,
   CaracteristicaProducto,
   normalizarCaracteristicas
@@ -91,6 +92,25 @@ export class AdminProductoFormComponent
   };
 
   colores = '';
+  stockPorColor = false;
+  stockColores: StockColor[] = [];
+
+  agregarStockColor(): void {
+    this.stockColores.push({ color: '', cantidad: 0 });
+  }
+
+  get totalStockColores(): number {
+    return this.stockColores.reduce((total, fila) => total + (fila.cantidad ?? 0), 0);
+  }
+
+  cambiarStockPorColor(): void {
+    if (this.stockPorColor && !this.stockColores.length) {
+      const colores = [...new Set(this.colores.split(',').map(c => c.trim()).filter(Boolean))];
+      this.stockColores = (colores.length ? colores : ['']).map(color => ({ color, cantidad: null }));
+    }
+    if (!this.stockPorColor) this.cantidadStock = this.totalStockColores;
+  }
+
 
   cantidadStock: number | null = 0;
 
@@ -295,6 +315,8 @@ export class AdminProductoFormComponent
     /* ESTADOS */
     /* ========================= */
 
+    this.stockPorColor = Array.isArray(producto.stock_colores) && producto.stock_colores.length > 0;
+    this.stockColores = (producto.stock_colores ?? []).map((fila: StockColor) => ({ ...fila }));
     this.cantidadStock = producto.cantidad_stock
       ?? (producto.stock === false ? 0 : null);
 
@@ -396,6 +418,18 @@ export class AdminProductoFormComponent
     if (this.guardando || this.eliminandoFoto) return;
 
     this.error = '';
+
+    if (this.stockPorColor) {
+      const claves = this.stockColores.map(fila => fila.color.trim().toLocaleLowerCase('es'));
+      if (!claves.length || claves.some(clave => !clave || clave.length > 80) ||
+          new Set(claves).size !== claves.length || this.stockColores.length > 100 ||
+          this.stockColores.some(fila => fila.cantidad === null || !Number.isInteger(fila.cantidad) || fila.cantidad < 0) ||
+          this.totalStockColores > 2147483647) {
+        this.error = 'Ingresá colores únicos y cantidades enteras desde 0. El total no puede superar 2147483647.';
+        return;
+      }
+      this.cantidadStock = this.totalStockColores;
+    }
 
     if (this.cantidadStock === null ||
         !Number.isInteger(this.cantidadStock) ||
@@ -531,7 +565,9 @@ if (!this.modoEdicion) {
       caracteristicas: ficha,
 
       colores:
-        this.colores.trim(),
+        this.stockPorColor ? this.stockColores.map(fila => fila.color.trim()).join(', ') : this.colores.trim(),
+
+      stock_colores: this.stockPorColor ? this.stockColores.map(fila => ({ color: fila.color.trim(), cantidad: fila.cantidad })) : null,
 
       cantidad_stock: this.cantidadStock,
 

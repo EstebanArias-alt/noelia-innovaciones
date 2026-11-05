@@ -28,6 +28,16 @@ import {
 
 
 export const routes: Routes = [
+  {
+    path: 'admin/boletas',
+    loadComponent: () => import('./pages/admin-boletas/admin-boletas.component').then(m => m.AdminBoletasComponent),
+    canActivate: [adminAuthGuard]
+  },
+  {
+    path: 'boleta/:token',
+    loadComponent: () => import('./pages/boleta-publica/boleta-publica.component').then(m => m.BoletaPublicaComponent)
+  },
+
 
   {
   path: 'admin/productos/:id/editar',
