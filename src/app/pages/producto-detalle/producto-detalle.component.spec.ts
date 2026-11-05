@@ -70,4 +70,33 @@ describe('Galería por color', () => {
     ]);
   });
 
+  it('muestra cantidades por color y trata cero como agotado aunque haya stock general', () => {
+    component.producto!.stock_colores = [{ color: ' negro ', cantidad: 0 }, { color: 'Blanco y negro', cantidad: 3 }];
+    component.seleccionarColor('Negro');
+    expect(component.cantidadSeleccionada).toBe(0);
+    expect(component.disponibleSeleccionado).toBeFalse();
+    expect(decodeURIComponent(component.whatsappUrl)).toContain('figura sin stock');
+    component.seleccionarColor('Blanco y negro');
+    expect(component.cantidadSeleccionada).toBe(3);
+    expect(component.disponibleSeleccionado).toBeTrue();
+  });
+
+  it('permite seleccionar colores con stock aunque no tengan fotos', () => {
+    component.producto!.stock_colores = [{ color: 'Beige', cantidad: 2 }];
+    expect(component.coloresSeleccionables).toContain('Beige');
+    component.seleccionarColor('Beige');
+    expect(component.cantidadSeleccionada).toBe(2);
+    expect(component.imagenSeleccionada).toBe('');
+    expect(component.galeriaVisible).toEqual([]);
+    expect(decodeURIComponent(component.whatsappUrl)).toContain('Color: Beige');
+  });
+
+  it('mantiene disponibilidad antigua y muestra total al quitar selección', () => {
+    expect(component.disponibleSeleccionado).toBeTrue();
+    component.producto!.cantidad_stock = 5;
+    component.seleccionarColor('');
+    expect(component.cantidadSeleccionada).toBe(5);
+    expect(component.disponibleSeleccionado).toBeTrue();
+  });
+
 });
