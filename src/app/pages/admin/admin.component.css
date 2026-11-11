@@ -802,3 +802,27 @@
   }
 
 }
+.accesos-admin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.accesos-admin a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #c8a96a;
+  border-radius: 6px;
+  background: #f4ead4;
+  color: #211a0e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.accesos-admin a:hover,
+.accesos-admin a:focus-visible {
+  background: #e9d5a9;
+}

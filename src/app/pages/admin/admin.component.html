@@ -35,8 +35,10 @@
   </header>
 
   @if (!cargando) {
-    <a routerLink="/admin/galeria-modelos">Fotos de modelos</a>
-    <a routerLink="/admin/boletas">Ver historial de boletas</a>
+    <nav class="accesos-admin" aria-label="Accesos del panel">
+      <a routerLink="/admin/galeria-modelos">Fotos de modelos</a>
+      <a routerLink="/admin/boletas">Ver historial de boletas</a>
+    </nav>
     <app-generar-boleta [productos]="productos" />
   }
 
