@@ -29,6 +29,11 @@ import {
 
 export const routes: Routes = [
   {
+    path: 'admin/galeria-modelos',
+    loadComponent: () => import('./pages/admin-galeria/admin-galeria.component').then(m => m.AdminGaleriaComponent),
+    canActivate: [adminAuthGuard]
+  },
+  {
     path: 'admin/boletas',
     loadComponent: () => import('./pages/admin-boletas/admin-boletas.component').then(m => m.AdminBoletasComponent),
     canActivate: [adminAuthGuard]

@@ -1,0 +1,24 @@
+@if (fotos.length) {
+  <section class="galeria-modelos" id="galeria-modelos" aria-labelledby="titulo-modelos">
+    <h2 id="titulo-modelos">Galería de modelos</h2>
+    <p>Consultanos por precio, medidas y disponibilidad.</p>
+    @if (demo) { <p>Vista de prueba con fotos de ejemplo.</p> }
+    <div class="modelos">
+      @for (foto of fotos.slice(0, limite); track foto.referencia; let i = $index) {
+        <button type="button" class="modelo" (click)="abrir(foto)" [attr.aria-label]="'Ampliar foto del modelo ' + (i + 1)">
+          <img [src]="foto.url" alt="" loading="lazy" decoding="async">
+        </button>
+      }
+    </div>
+    @if (limite < fotos.length) {
+      <button type="button" class="consulta" (click)="limite = limite + 8">Ver más modelos</button>
+    }
+  </section>
+}
+<dialog #visor aria-label="Foto ampliada del modelo">
+  <form method="dialog"><button type="submit" class="cerrar" aria-label="Cerrar foto">✕</button></form>
+  @if (seleccion; as foto) {
+    <img class="ampliada" [src]="foto.url" alt="Foto ampliada del modelo">
+    <a class="consulta" [href]="whatsappUrl" target="_blank" rel="noopener noreferrer">Consultar precio por WhatsApp</a>
+  }
+</dialog>

@@ -1,0 +1,7 @@
+main { max-width: 1000px; margin: auto; padding: 32px 20px; }
+label, input { display: block; margin: 8px 0; }
+button { background: #c8a96a; color: #181818; border: 0; border-radius: 4px; padding: 12px 16px; font: inherit; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+[role="alert"] { color: #952626; }
+.fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.fotos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }

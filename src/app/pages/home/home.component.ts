@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GaleriaModelosComponent } from '../../components/galeria-modelos/galeria-modelos.component';
 
 import { HeaderComponent } from '../../components/header/header.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -34,6 +35,7 @@ import { ContactoNewsletterComponent }from '../../components/contacto-newsletter
     ProductosComponent,
     NosotrosComponent,
     GaleriaComponent,
+    GaleriaModelosComponent,
     ContactoComponent,
     FooterComponent,
     WhatsappButtonComponent

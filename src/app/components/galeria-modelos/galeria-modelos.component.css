@@ -1,0 +1,12 @@
+.galeria-modelos { padding: 56px 20px; text-align: center; background: #f6f3ec; }
+h2 { color: #181818; font-size: clamp(1.6rem, 4vw, 2.25rem); margin: 0 0 8px; }
+p { margin: 0 0 24px; color: #514a40; }
+.modelos { max-width: 1120px; margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+.modelo { padding: 0; border: 1px solid #d9d0bd; border-radius: 6px; overflow: hidden; background: #eee9df; cursor: zoom-in; }
+.modelo img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.consulta { display: inline-block; padding: 12px 18px; margin-top: 16px; border: 0; border-radius: 4px; background: #c8a96a; color: #171717; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+dialog { width: min(720px, 92vw); max-height: 90dvh; padding: 12px 16px 18px; border: 0; border-radius: 8px; text-align: center; }
+dialog::backdrop { background: rgb(0 0 0 / 72%); }
+form { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.cerrar { min-width: 36px; min-height: 36px; border: 0; border-radius: 4px; background: #eee9df; cursor: pointer; }
+.ampliada { display: block; width: 100%; height: min(60dvh, 520px); object-fit: contain; background: #f6f3ec; }
