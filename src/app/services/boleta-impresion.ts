@@ -56,8 +56,8 @@ export function htmlBoleta(datos: DatosBoleta): string {
   .saldo { font-weight: bold; }
   .casilla { display: inline-block; border: 1px solid #555; width: 10px; height: 10px; line-height: 9px; font-size: 9px; text-align: center; }
   .observaciones { margin-top: 3mm; border: 1px solid #997435; min-height: 12mm; padding: 5px; line-height: 1.5; overflow-wrap: anywhere; }
-  .firmas { display: flex; justify-content: space-between; gap: 16mm; margin: 9mm 8mm 5mm; text-align: center; font-size: 9px; break-inside: avoid; }
-  .firma { width: 50%; border-top: 1px solid #555; padding-top: 4px; }
+  .firmas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm; margin: 9mm 8mm 1mm; text-align: center; font-size: 9px; break-inside: avoid; }
+  .firma { border-top: 1px solid #555; padding-top: 4px; }
   .pie { margin-top: auto; padding-top: 3mm; }
   .condiciones { border-top: 1px solid #b48a3c; border-bottom: 1px solid #b48a3c; padding: 5px 0; font-size: 6.7pt; line-height: 1.2; text-align: left; overflow-wrap: anywhere; }
   .grupo-pautas strong { break-after: avoid; }
@@ -88,8 +88,13 @@ export function htmlBoleta(datos: DatosBoleta): string {
   ${datos.sena !== undefined ? fila('Seña', moneda(sena)) + `<tr class="saldo"><th>SALDO</th><td>${moneda(saldo)}</td></tr>` : ''}
   </tbody></table></div>
   <div class="observaciones"><span class="etiqueta">OBSERVACIÓN:</span>${texto(datos.observaciones)}</div>
-  <div class="firmas"><div class="firma">FIRMA DEL CLIENTE</div><div class="firma">FIRMA / ACLARACIÓN DEL VENDEDOR</div></div></section>
+  </section>
   <div class="pie">${condiciones ? `<section class="condiciones" aria-label="Pautas y políticas">${condiciones}</section>` : ''}
+  <div class="firmas" aria-label="Datos de firma del cliente">
+    <div class="firma">FIRMA DEL CLIENTE</div>
+    <div class="firma">ACLARACIÓN</div>
+    <div class="firma">DNI DEL CLIENTE</div>
+  </div>
   <footer>Comprobante interno sin validez fiscal · Importes expresados en pesos argentinos.</footer></div>
   </main></body></html>`;
 }
