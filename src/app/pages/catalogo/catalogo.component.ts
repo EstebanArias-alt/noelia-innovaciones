@@ -94,6 +94,11 @@ async ngOnInit(): Promise<void> {
       this.busqueda =
         params.get('buscar') ?? '';
 
+      const categoria = params.get('categoria')?.trim() || 'Todos';
+      const clave = this.normalizarTexto(categoria);
+      this.categoriaSeleccionada = this.categorias.find(
+        nombre => this.normalizarTexto(nombre) === clave
+      ) ?? categoria;
       this.aplicarFiltros();
 
     });
@@ -105,10 +110,11 @@ async ngOnInit(): Promise<void> {
     categoria: string
   ): void {
 
-    this.categoriaSeleccionada =
-      categoria;
-
-    this.aplicarFiltros();
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { categoria: categoria === 'Todos' ? null : categoria },
+      queryParamsHandling: 'merge'
+    });
 
   }
 
@@ -176,11 +182,11 @@ if (termino) {
       !== 'Todos'
     ) {
 
+      const claveCategoria = this.normalizarTexto(this.categoriaSeleccionada);
       resultado =
         resultado.filter(
           producto =>
-            producto.categoria ===
-            this.categoriaSeleccionada
+            this.normalizarTexto(producto.categoria ?? '') === claveCategoria
         );
 
     }
@@ -253,7 +259,8 @@ limpiarBusqueda(): void {
   this.router.navigate(
     ['/productos'],
     {
-      queryParams: {}
+      queryParams: { buscar: null },
+      queryParamsHandling: 'merge'
     }
   );
 
