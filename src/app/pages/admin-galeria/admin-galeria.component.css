@@ -5,3 +5,6 @@ button:disabled { opacity: .6; cursor: wait; }
 [role="alert"] { color: #952626; }
 .fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
 .fotos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+.foto img { display: block; }
+.borrar { width: 100%; margin-top: 6px; padding: 8px; background: #f9eded; color: #952626; }

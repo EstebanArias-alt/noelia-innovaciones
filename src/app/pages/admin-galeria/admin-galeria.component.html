@@ -4,16 +4,21 @@
   <p>Subí fotos para mostrarlas en la Galería de modelos del inicio. Formatos JPG, PNG o WebP, hasta 5 MB por foto.</p>
   <label for="fotos-modelos">Elegir fotos</label>
   <input id="fotos-modelos" type="file" multiple accept="image/jpeg,image/png,image/webp"
-    #archivos (change)="elegir(archivos)" [disabled]="subiendo">
+    #archivos (change)="elegir(archivos)" [disabled]="subiendo || !!borrando">
   @if (pendientes.length) {
     <p>{{ pendientes.length }} fotos pendientes.</p>
-    <button type="button" (click)="subir()" [disabled]="subiendo">Subir fotos a la galería</button>
+    <button type="button" (click)="subir()" [disabled]="subiendo || !!borrando">Subir fotos a la galería</button>
   }
   <p role="status">{{ estado }}</p>
   @if (error) { <p role="alert">{{ error }}</p> }
   <div class="fotos">
     @for (foto of fotos; track foto.referencia) {
-      <img [src]="foto.url" alt="Foto de modelo publicada" loading="lazy">
+      <div class="foto">
+        <img [src]="foto.url" alt="Foto de modelo publicada" loading="lazy">
+        <button class="borrar" type="button" (click)="borrar(foto)" [disabled]="subiendo || !!borrando">
+          {{ borrando === foto.referencia ? 'Borrando…' : 'Borrar foto' }}
+        </button>
+      </div>
     }
   </div>
 </main>

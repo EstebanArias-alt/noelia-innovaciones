@@ -13,6 +13,7 @@ export class AdminGaleriaComponent implements OnInit {
   fotos: FotoModelo[] = [];
   pendientes: File[] = [];
   subiendo = false;
+  borrando: string | null = null;
   estado = '';
   error = '';
 
@@ -28,7 +29,7 @@ export class AdminGaleriaComponent implements OnInit {
   }
 
   async subir(): Promise<void> {
-    if (this.subiendo || !this.pendientes.length) return;
+    if (this.subiendo || this.borrando || !this.pendientes.length) return;
     this.subiendo = true;
     this.error = '';
     const fallidas: File[] = [];
@@ -51,6 +52,24 @@ export class AdminGaleriaComponent implements OnInit {
       await this.actualizar();
     } finally {
       this.subiendo = false;
+    }
+  }
+
+  async borrar(foto: FotoModelo): Promise<void> {
+    if (this.subiendo || this.borrando) return;
+    if (!window.confirm('¿Borrar esta foto de la galería?')) return;
+
+    this.borrando = foto.referencia;
+    this.estado = '';
+    this.error = '';
+    try {
+      await this.galeria.borrar(foto.referencia);
+      this.fotos = this.fotos.filter(item => item.referencia !== foto.referencia);
+      this.estado = 'Foto borrada.';
+    } catch {
+      this.error = 'No se pudo borrar la foto. Revisá la conexión y el permiso de borrado en Supabase.';
+    } finally {
+      this.borrando = null;
     }
   }
 

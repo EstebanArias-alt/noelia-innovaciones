@@ -37,6 +37,12 @@ export class GaleriaModelosService {
     }
   }
 
+  async borrar(referencia: string): Promise<void> {
+    const { data, error } = await this.fotos.remove([referencia]);
+    if (error) throw error;
+    if (!data?.length) throw new Error('Supabase no confirmó el borrado.');
+  }
+
   async subir(archivo: File): Promise<void> {
     const extension = extensiones[archivo.type];
     if (!extension || archivo.size === 0 || archivo.size > MAX_FOTO_MODELO) {
