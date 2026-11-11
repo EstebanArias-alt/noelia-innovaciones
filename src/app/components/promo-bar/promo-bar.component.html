@@ -1,39 +1,21 @@
+@let mensajes = [
+  '✨ 12 cuotas sin interés',
+  '🚚 Consultá por envíos',
+  '🛋 Diseños exclusivos',
+  '💬 Atención por WhatsApp'
+];
+
 <div class="promo-bar">
-
   <div class="promo-track">
-
-    <span>
-      ✨ 12 cuotas sin interés
-    </span>
-
-    <span>
-      🚚 Consultá por envíos
-    </span>
-
-    <span>
-      🛋 Diseños exclusivos
-    </span>
-
-    <span>
-      💬 Atención por WhatsApp
-    </span>
-
-    <span>
-      ✨ 12 cuotas sin interés
-    </span>
-
-    <span>
-      🚚 Consultá por envíos
-    </span>
-
-    <span>
-      🛋 Diseños exclusivos
-    </span>
-
-    <span>
-      💬 Atención por WhatsApp
-    </span>
-
+    @for (grupo of [0, 1]; track grupo) {
+      <div class="promo-grupo" [attr.aria-hidden]="grupo === 1 ? 'true' : null">
+        @for (mensaje of mensajes; track mensaje) {
+          <span>{{ mensaje }}</span>
+        }
+        @for (mensaje of mensajes; track mensaje) {
+          <span class="promo-repetido" aria-hidden="true">{{ mensaje }}</span>
+        }
+      </div>
+    }
   </div>
-
 </div>
