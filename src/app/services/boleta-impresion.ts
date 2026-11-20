@@ -85,7 +85,7 @@ export function htmlBoleta(datos: DatosBoleta): string {
   </tbody></table><table class="totales" aria-label="Importes"><tbody>
   ${fila('Subtotal', moneda(totalBoleta(datos.lineas)))}${fila('Flete', moneda(datos.flete ?? 0))}
   <tr class="total"><th>TOTAL</th><td>${moneda(total)}</td></tr>
-  ${datos.sena !== undefined ? fila('Seña', moneda(sena)) + `<tr class="saldo"><th>SALDO</th><td>${moneda(saldo)}</td></tr>` : ''}
+  ${datos.sena !== undefined ? fila('Importe abonado', moneda(sena)) + `<tr class="saldo"><th>SALDO</th><td>${moneda(saldo)}</td></tr>` : ''}
   </tbody></table></div>
   <div class="observaciones"><span class="etiqueta">OBSERVACIÓN:</span>${texto(datos.observaciones)}</div>
   </section>

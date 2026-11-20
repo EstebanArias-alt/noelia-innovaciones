@@ -102,7 +102,7 @@ export class GenerarBoletaComponent {
 
   private validar(): boolean {
     if (this.armarDomicilio === null || !validarBoleta(this.datos())) {
-      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero. Revisá el flete (0 si es sin cargo) y elegí si se arma en domicilio. La seña debe estar entre 0 y el total.';
+      this.error = 'Completá comercio, cliente, referencia, fecha válida y entre 1 y 100 productos con cantidad entera positiva y precio mayor a cero. Revisá el flete (0 si es sin cargo) y elegí si se arma en domicilio. El importe abonado debe estar entre 0 y el total.';
       return false;
     }
     this.error = '';
