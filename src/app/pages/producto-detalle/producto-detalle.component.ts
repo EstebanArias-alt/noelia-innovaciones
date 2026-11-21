@@ -290,7 +290,7 @@ export class ProductoDetalleComponent
 
 
     const numero =
-      '5493884605421';
+      '5493884044893';
 
 
     const precioContado = this.producto.precio
