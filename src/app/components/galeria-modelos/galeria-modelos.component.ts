@@ -47,6 +47,6 @@ export class GaleriaModelosComponent implements OnInit {
     enlace.searchParams.set('modelo', this.seleccion.referencia);
     if (this.demo) enlace.searchParams.set('galeria-demo', '1');
     const mensaje = `Hola, quisiera consultar el precio y la disponibilidad de este modelo: ${enlace.href}`;
-    return `https://wa.me/5493884605421?text=${encodeURIComponent(mensaje)}`;
+    return `https://wa.me/5493884044893?text=${encodeURIComponent(mensaje)}`;
   }
 }
