@@ -55,7 +55,7 @@ export class ProductCardComponent {
 
 get whatsappUrl(): string {
 
-  const numero = '5493884605421';
+  const numero = '5493884044893';
 
     const precioContado = this.producto.precio
       ? `$${this.producto.precio.toLocaleString('es-AR')}` : 'Consultar';
