@@ -13,6 +13,7 @@ export interface DatosBoleta {
 export interface BoletaGuardada {
   id: string; created_at: string; datos: DatosBoleta; total: number;
   share_token: string; compartible: boolean;
+  entregada_at?: string | null;
 }
 export type BoletaPublica = Pick<BoletaGuardada, 'id' | 'created_at' | 'datos' | 'total'>;
 export function subtotalBoleta(linea: LineaBoleta): number {

@@ -21,10 +21,11 @@ export class AdminBoletasComponent implements OnInit {
   campo: 'cliente' | 'referencia' = 'cliente';
   compartiendo: BoletaGuardada | null = null;
   revocando: string | null = null;
+  guardandoEntrega = new Set<string>();
   constructor(private servicio: BoletasService) {}
   ngOnInit(): void { void this.cargar(0); }
   async cargar(pagina: number): Promise<void> {
-    if (this.cargando) return;
+    if (this.cargando || this.guardandoEntrega.size) return;
     this.cargando = true; this.error = ''; this.compartiendo = null;
     try { this.boletas = await this.servicio.listar(pagina, this.campo, this.busqueda); this.pagina = pagina; }
     catch { this.error = 'No se pudo cargar el historial. Revisá la conexión y que se haya aplicado la configuración de boletas en Supabase.'; }
@@ -32,6 +33,16 @@ export class AdminBoletasComponent implements OnInit {
   }
   imprimir(boleta: BoletaGuardada): void {
     this.error = imprimirBoleta(boleta.datos) ? '' : 'Permití las ventanas emergentes para abrir la boleta.';
+  }
+  async cambiarEntrega(boleta: BoletaGuardada): Promise<void> {
+    if (this.cargando || this.guardandoEntrega.has(boleta.id)) return;
+    this.guardandoEntrega.add(boleta.id); this.error = '';
+    try {
+      const actualizada = await this.servicio.marcarEntrega(boleta.id, !boleta.entregada_at);
+      boleta.entregada_at = actualizada.entregada_at;
+    } catch {
+      this.error = 'No se pudo guardar el estado de entrega. Reintentá; si persiste, revisá que la configuración de entregas esté aplicada en Supabase.';
+    } finally { this.guardandoEntrega.delete(boleta.id); }
   }
   async revocar(boleta: BoletaGuardada): Promise<void> {
     if (this.revocando || !window.confirm('¿Desactivar el enlace de esta boleta? El cliente ya no podrá abrirlo. Los archivos que haya descargado se conservan.')) return;

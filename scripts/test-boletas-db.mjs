@@ -73,4 +73,33 @@ for (const valores of [{sena:-1},{sena:1},{sena:0.001},{tipo_tarjeta:'x'.repeat(
 }
 console.log('SQL diseño: campos nuevos, seña, enlace público y rechazo de 5 casos inválidos OK.');
 
+await db.exec('reset role');
+const entregaSql = fs.readFileSync(new URL('../supabase/migrations/20261125_boletas_estado_entrega.sql', import.meta.url), 'utf8');
+await db.exec(entregaSql);
+await db.exec(entregaSql); // repetible
+await role('authenticated', admin);
+const antesEntrega = (await db.query('select * from public.boletas where id=$1', [nueva.id])).rows[0];
+assert.equal(antesEntrega.entregada_at, null);
+const entregada = (await db.query('select public.marcar_entrega_boleta($1,true) as b', [nueva.id])).rows[0].b;
+assert(entregada.entregada_at);
+assert.deepEqual(entregada.datos, antesEntrega.datos);
+assert.equal(Number(entregada.total), Number(antesEntrega.total));
+assert.equal(entregada.compartible, antesEntrega.compartible);
+assert.equal(entregada.share_token, antesEntrega.share_token);
+const repetida = (await db.query('select public.marcar_entrega_boleta($1,true) as b', [nueva.id])).rows[0].b;
+assert.equal(repetida.entregada_at, entregada.entregada_at);
+await fails(() => db.query('select public.marcar_entrega_boleta($1,null)', [nueva.id]));
+await fails(() => db.query('select public.marcar_entrega_boleta(gen_random_uuid(),true)'));
+await role('anon');
+await fails(() => db.query('select public.marcar_entrega_boleta($1,true)', [nueva.id]));
+const publicaEntrega = (await db.query('select public.ver_boleta_compartida($1) as b', [nueva.share_token])).rows[0].b;
+assert(!('entregada_at' in publicaEntrega));
+await role('authenticated', '11111111-1111-4111-8111-111111111111');
+await fails(() => db.query('select public.marcar_entrega_boleta($1,false)', [nueva.id]));
+await role('authenticated', admin);
+assert((await db.query('select entregada_at from public.boletas where id=$1', [nueva.id])).rows[0].entregada_at);
+const pendiente = (await db.query('select public.marcar_entrega_boleta($1,false) as b', [nueva.id])).rows[0].b;
+assert.equal(pendiente.entregada_at, null);
+await fails(() => db.query('update public.boletas set datos=$1 where id=$2', [{...datos,cliente:'Otro'},nueva.id]));
+console.log('Entregas OK: marcar, persistir fecha, desmarcar, permisos, datos originales y enlace público.');
 await db.close();
