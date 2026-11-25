@@ -36,4 +36,12 @@ export class BoletasService {
       .update({ compartible: false }).eq('id', id).select('id').single();
     if (error || !data) throw error ?? new Error('No se pudo revocar');
   }
+
+  async marcarEntrega(id: string, entregada: boolean): Promise<BoletaGuardada> {
+    const { data, error } = await this.conexion.supabase.rpc('marcar_entrega_boleta', {
+      p_id: id, p_entregada: entregada
+    });
+    if (error || !data) throw error ?? new Error('No se pudo actualizar la entrega');
+    return data as BoletaGuardada;
+  }
 }
